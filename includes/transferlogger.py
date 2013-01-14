@@ -32,28 +32,25 @@ class transferLogger():
         types = {0: 'downloads', 1: 'uploads'}
         userid = info['user']
         for key, type in types.items():
-            print "checking %s" % type
             if info[type]:
                 transfer = self.parseTransfer(info[type])
                 for index, atransfer in transfer.items():
                     id = str(userid) + "/" + str(atransfer.filename)
                     if id in self.activeTransfers:
-                        print "Already seen " + type + " %s" % id
                         self.activeTransfers[id].update(atransfer)
                         if (time() + self.interval) > self.activeTransfers[id].eta:
-                            print "Transfer will finish within the next interval"
+                            # Transfer will finish within the next interval
                             self.activeTransfers[id].isdone = 1
                             self.activeTransfers[id].bytesdone = self.activeTransfers[id].bytestotal
 
                     else:
+                        # New transfer item
                         atransfer.type = key
-                        print "key is %s" % key
                         atransfer.id = userid
                         atransfer.nick = info['nick']
                         atransfer.account = info['login']
                         atransfer.dlcount = 0  # ???
                         self.activeTransfers[id] = atransfer
-                        print "found new " + type + " %s" % id
 
         return 1
 
@@ -74,7 +71,6 @@ class transferLogger():
         return parsed
 
     def commitRun(self):
-        print "commitRun: start"
         for key, transfer in self.activeTransfers.items():
             if transfer.committed:
                 break  # no update since last run
@@ -84,18 +80,16 @@ class transferLogger():
                     self.activeTransfers[key].committed = 0
                     self.activeTransfers[key].finished = time()
                     self.activeTransfers[key].isdone = 1
-                    print "Flagging transfer " + str(key) + "as finished (" + transfer.percentDone + " % done)"
+                    self.logger.info( "Flagging transfer " + str(key) + "as finished (" + transfer.percentDone + " % done)")
 
             if not self.db.addTransfer(transfer.type, transfer.pack()):
-                print "Failed to insert %s into DB" % key
+                # Failed to add this transfer - skip it for now
                 break
 
             self.activeTransfers[key].committed = 1
             if transfer.isdone or (transfer.lastUpdated + 600) <= time():
-                print "removing transfer %s from memory" % key
                 self.activeTransfers.pop(key)  # this one is done
 
-        print "commitRun: end"
         return 1
 
 
@@ -127,7 +121,6 @@ class transfer():
         self.lastUpdated = time()
         self.eta = (time() + float((self.bytestotal - self.bytesdone) / self.speed))
         self.percentDone = (float(self.bytesdone) * 100) / float(self.bytestotal)
-        #print "Transfer " + str(data.filename) + " is " + str(self.percentDone) + " % done."
         self.committed = 0
         return 1
 

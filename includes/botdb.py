@@ -65,9 +65,7 @@ class botDB():
             if check:
                 try:
                     count = int(check[0][7])
-                    print "Value was: %s" % count
                     count = count + 1
-                    print "Value is now: %s" % count
                 except IndexError:
                     count = 1
             else:

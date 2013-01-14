@@ -59,10 +59,7 @@ class eventLogger():
             packed['user'] = user.login
             packed['date'] = time()
         except:
-            print "ERROR"
             return 0
-
-        #print packed
         packed['commited'] = 0
         return packed
 
