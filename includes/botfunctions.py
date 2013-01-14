@@ -1,29 +1,4 @@
-from pygeoip import GeoIP  # pygeoip
 from os.path import exists
-
-
-def get_geolocation(ip, includeCity=0):
-    dbpath = "GeoLiteCity.dat"
-    if not exists(dbpath):
-        return 0
-    location = 0
-    gloc = GeoIP(dbpath)
-    data = gloc.record_by_addr(ip)
-    location = ""
-    if includeCity:
-        try:
-            if 'city' in data:
-                if data['city']:
-                    location += data['city'] + "/"
-        except TypeError:
-            pass
-    try:
-        location += data['country_name']
-    except TypeError:
-        pass
-    if location:
-        return location.encode("utf-8")
-    return 0
 
 
 def loadConfig(confFile):

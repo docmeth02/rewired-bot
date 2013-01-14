@@ -78,18 +78,6 @@ class rewiredbot():
         if self.config['eventLog']:
             self.eventlog.logEvent(3, [msg[1], msg[0]])
 
-        if msg[1] == 1 and self.config['greetUsers']:  # this is public chat
-            user = self.librewired.getUserByID(int(msg[0]))
-            if user:
-                greeting = "hi %s." % user.nick
-                if not user.ip:
-                    self.librewired.getUserInfo(user.id)
-                if user.ip:
-                    location = 0
-                    location = botfunctions.get_geolocation(user.ip)
-                    if location:
-                        greeting = greeting + (" You are connecting from %s" % location)
-                self.librewired.sendChat(msg[1], greeting)
         return 1
 
     def clientLeft(self, msg):
