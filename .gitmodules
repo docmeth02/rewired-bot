@@ -1,0 +1,3 @@
+[submodule "librewired"]
+	path = librewired
+	url = http://git.m2-entertainment.de/lib-rewired.git
