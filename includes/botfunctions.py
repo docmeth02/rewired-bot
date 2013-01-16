@@ -1,4 +1,5 @@
 from os.path import exists
+from re import match, compile
 
 
 def loadConfig(confFile):
@@ -20,8 +21,8 @@ def loadConfig(confFile):
     eventLog = boolean(default=False)
     autoreconnect = boolean(default=False)
     PidFile = string(default="rewiredbot.pid")
-    greetUsers = boolean(default=True)
     # loglevels: debug, info, warning, error, none
+    adminUser = list(default=list('admin', 'docmeth02'))
     logLevel = string(default=debug)"""
     spec = default.split("\n")
     config = ConfigObj(confFile, list_values=False, stringify=True, configspec=spec)
@@ -38,3 +39,14 @@ def checkPlatform(name):
     if name.upper() == str(platform.system()).upper():
         return 1
     return 0
+
+
+def regmatch(text, delimitStart, delimitEnd=False):
+    if not delimitEnd:
+        delimitEnd = delimitStart
+    pattern = compile('\\' + str(delimitStart) + '(.*?)\\' + str(delimitEnd))
+    match = pattern.search(text)
+    if match:
+        return text[match.start() + 1:match.end() - 1]
+    else:
+        return 0
