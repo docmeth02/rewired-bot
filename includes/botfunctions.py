@@ -47,6 +47,17 @@ def regmatch(text, delimitStart, delimitEnd=False):
     pattern = compile('\\' + str(delimitStart) + '(.*?)\\' + str(delimitEnd))
     match = pattern.search(text)
     if match:
-        return text[match.start() + 1:match.end() - 1]
+        return text[match.start() + 1:match.end() - 1].strip()
     else:
         return 0
+
+
+def regexclude(text, delimitStart, delimitEnd=False):
+    if not delimitEnd:
+        delimitEnd = delimitStart
+    pattern = compile('\\' + str(delimitStart) + '(.*?)\\' + str(delimitEnd))
+    match = pattern.search(text)
+    if match:
+        return text[match.end():].strip()
+    else:
+        return text
