@@ -1,5 +1,6 @@
 import json
 from os.path import exists
+from includes.botfunctions import regmatch, regexclude
 
 
 class rewiredBotPlugin():
@@ -37,9 +38,8 @@ class rewiredBotPlugin():
             item = 0
             index = 0
             try:
-                item = params[:params.find('[')]
-                item = item.rstrip()
-                index = params[params.find('[') + 1:params.find(']')]
+                index = regmatch(params, self.parent.config['paramDelimiter'])
+                item = regexclude(params, self.parent.config['paramDelimiter'])
                 if index != '*':
                     index = int(index)
             except:
@@ -59,7 +59,8 @@ class rewiredBotPlugin():
 
             self.brain[item.upper()].pop(index)
             if self.save():
-                return "Okay, I forgot " + item + "[" + str(index) + "]"
+                return "Okay, I forgot " + " " + item + " " + self.parent.config['paramDelimiter'] + str(index) \
+                + self.parent.config['paramDelimiter']
             return 0
 
     def save(self):
@@ -75,11 +76,11 @@ class rewiredBotPlugin():
         command = command.lstrip()
         response = ""
         if command.upper() in self.brain:
-            #self.parent.librewired.sendChat(int(param[0]), command + ":")
             response = response + (command + ":\n")
             for n in range(len(self.brain[command.upper()])):
                 #self.parent.librewired.sendChat(int(param[0]), "[" + str(n) + "] " + self.brain[command][n])
-                response = response + ("[" + str(n) + "] " + self.brain[command.upper()][n] + "\n")
+                response = response + (self.parent.config['paramDelimiter'] + " " + str(n) + " " \
+                                       + self.parent.config['paramDelimiter'] + self.brain[command.upper()][n] + "\n")
         if response:
             try:
                 response = response.encode('UTF-8')

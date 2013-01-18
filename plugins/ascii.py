@@ -1,22 +1,27 @@
+from includes.botfunctions import regmatch, regexclude
 from pyfiglet import Figlet, FontNotFound
 
 
 class rewiredBotPlugin():
-    def __init__(self, *args):
+    def __init__(self, parent, *args):
         self.defines = "!ascii"
+        self.parent = parent
 
-    def run(*args):
+    def run(self, *args):
         font = 'slant'
-        if args[1].upper() == "?FONTS":
+        if args[0].upper() == "?FONTS":
             f = Figlet(font)
             return str(f.getFonts())
 
-        if args[1].count("[", 0, 2) and args[1].count("]"):
-            font = args[1][args[1].find('[', 0, 2) + 1:args[1].find(']')]
-            text = args[1][args[1].find(']') + 1:]
-            text = text.strip()
+        param = regmatch(args[0], self.parent.config['paramDelimiter'])
+        if param:
+            font = param
+            text = regexclude(args[0], self.parent.config['paramDelimiter'])
+            if not text:
+                return 0
         else:
             text = args[1]
+
         try:
             f = Figlet(font)
             text = f.renderText(text)

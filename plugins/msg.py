@@ -1,4 +1,5 @@
 from time import time, ctime
+from includes.botfunctions import regmatch, regexclude
 
 
 class rewiredBotPlugin():
@@ -19,11 +20,11 @@ class rewiredBotPlugin():
                 return str(nick) + ": You have no pending messages."
             self.deliverMsg(fullmsg[1])
             return 0
-            #return "!msg username/[usernick] msg"
 
-        if args[0].count("[", 0, 2) and args[0].count("]"):
-            name = args[0][args[0].find('[', 0, 2) + 1:args[0].find(']')]
-            msg = args[0][args[0].find(']') + 1:]
+        nick = regmatch(args[0], self.parent.config['paramDelimiter'])
+        if nick:
+            msg = regexclude(args[0], self.parent.config['paramDelimiter'])
+            name = nick
             isnick = 1
             #userid = self.parent.librewired.getUserByNick(name)
         else:
@@ -33,7 +34,6 @@ class rewiredBotPlugin():
             #userid = self.parent.librewired.getUserByName(name)
 
         msg = msg.strip()
-        print fullmsg
         if not self.queueMsg(fullmsg[1], name, isnick, msg):
             return "Sorry, i can't store your message right now."
         return "Okay, I'll send your message to " + str(name) + " (Queue ID: " + str(len(self.mbox)) + ")"
@@ -43,7 +43,6 @@ class rewiredBotPlugin():
             user = self.parent.librewired.getUserNameByID(userID)
             nick = self.parent.librewired.getNickByID(userID)
             self.mbox.append({'fromuser': user, 'fromnick': nick, 'to': to, 'isnick': isnick, 'msg': msg, 'date': time()})
-            print self.mbox
         except:
             return 0
         return 1
@@ -59,10 +58,8 @@ class rewiredBotPlugin():
             self.parent.librewired.sendPrivateMsg(userID, "Message from " + amsg['fromnick'] + "(" + amsg['fromuser'] +\
             ") sent on " + str(ctime(int(amsg['date']))) + ":\n" + str(amsg['msg']))
         msgs = sorted(msgs, reverse=True)
-        print msgs
         for index in msgs:
             self.removeMsg(index)
-            print index
         return 1
 
     def checkQueue(self, userID):

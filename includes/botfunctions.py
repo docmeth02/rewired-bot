@@ -20,6 +20,7 @@ def loadConfig(confFile):
     legacyInterval = integer(default=30)
     eventLog = boolean(default=False)
     autoreconnect = boolean(default=False)
+    paramDelimiter = string(default="_")
     PidFile = string(default="rewiredbot.pid")
     # loglevels: debug, info, warning, error, none
     adminUser = list(default=list('admin', 'docmeth02'))

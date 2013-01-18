@@ -1,3 +1,4 @@
+from includes.botfunctions import regmatch, regexclude
 from urllib2 import Request, urlopen
 
 
@@ -10,10 +11,10 @@ class rewiredBotPlugin():
         if not params:
             # add usag info here
             return 0
-        if params.count('[',0,2):
-            lang = params[params.find('[', 0, 2) + 1:params.find(']', 1, 5)]
-            text = params[params.find(']', 1, 5)+1:]
-            text = text.lstrip()
+
+        lang = regmatch(params, self.parent.config['paramDelimiter'])
+        if lang:
+            text = regexclude(params, self.parent.config['paramDelimiter'])
         else:
             lang = "auto"
             text = params
