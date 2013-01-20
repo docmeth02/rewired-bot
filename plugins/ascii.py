@@ -20,7 +20,7 @@ class rewiredBotPlugin():
             if not text:
                 return 0
         else:
-            text = args[1]
+            text = args[0]
 
         try:
             f = Figlet(font)
