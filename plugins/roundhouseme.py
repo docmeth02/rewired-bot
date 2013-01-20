@@ -6,6 +6,7 @@ from time import time
 class rewiredBotPlugin():
     def __init__(self, *args):
         self.defines = "!roundhouseme"
+        self.privs = {'!roundhouseme': 1}
         self.data = []
         self.lastupdate = 0
         self.update()

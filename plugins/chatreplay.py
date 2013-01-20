@@ -3,6 +3,7 @@ class rewiredBotPlugin():
         self.parent = parent
         self.config = self.parent.config
         self.defines = "!chatreplay"
+        self.privs = {'!chatreplay': 50}
 
     def run(self, *args):
         display = 10

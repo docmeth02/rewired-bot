@@ -7,6 +7,7 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = ["!learn", "!forget"]
+        self.privs = {'!learn': 50, '!forget': 50}
         self.binds = "??"
         self.brain = {}
         if exists('brain.json'):
@@ -17,6 +18,8 @@ class rewiredBotPlugin():
         command = self.parent.parse_command(args[0][2])
 
         if str(command).upper() == "LEARN":
+            if not isinstance(params, str):
+                return "Usage: !learn Topic Item"
             if not params.count(" ", 0, 10):
                 return 0
             name = params[0: params.find(" ")]

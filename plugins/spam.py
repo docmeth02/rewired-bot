@@ -6,6 +6,7 @@ class rewiredBotPlugin():
     def __init__(self, *args):
         #self.parent = parent
         self.defines = "!spam"
+        self.privs = {'!spam': 25}
         self.data = {}
         self.loadDict()
 

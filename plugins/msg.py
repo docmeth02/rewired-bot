@@ -7,6 +7,7 @@ class rewiredBotPlugin():
         self.parent = parent
         self.config = self.parent.config
         self.defines = "!msg"
+        self.privs = {'!msg': 1}
         self.parent.librewired
         self.mbox = []
         self.parent.librewired.notify("__ClientJoin", self.clientJoined)

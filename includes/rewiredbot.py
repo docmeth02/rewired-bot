@@ -6,7 +6,7 @@ import botfunctions
 from botdb import *
 from transferlogger import *
 from eventlogging import *
-from logging import StreamHandler, getLogger, DEBUG
+from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR
 
 
 class rewiredbot():
@@ -107,7 +107,13 @@ class rewiredbot():
 
             command = self.check_command(chat[2])  # check for a command
             if command:
-                result = command['command'].run(command['parameter'], chat)
+                reqprivs = self.getCommandPrivs("!" + self.check_command(chat[2], 1))
+                userprivs = self.getPrivs(chat[1])
+                if userprivs >= reqprivs:
+                    result = command['command'].run(command['parameter'], chat)
+                else:
+                    result = "Sorry, " + str(self.librewired.getNickByID(chat[1])) + "... You are not allowed to use !"\
+                    + self.check_command(chat[2], 1)
                 if result:
                         self.librewired.sendChat(int(chat[0]), result)
             else:
@@ -136,7 +142,7 @@ class rewiredbot():
             command = line[line.find("!") + 1:]
         return command
 
-    def check_command(self, line):
+    def check_command(self, line, parseOnly=0):
         #parse command
         if not line.count("!", 0, 5):
             return 0
@@ -144,6 +150,8 @@ class rewiredbot():
             command = line[line.find("!") + 1: line.find(" ")]
         else:
             command = line[line.find("!") + 1:]
+        if parseOnly:
+            return command
         # now check for a valid command
         acommand = 0
         if self.plugins:
@@ -192,3 +200,34 @@ class rewiredbot():
                 except:
                     pass
         return 1
+
+    def getPrivs(self, userID):
+        user = self.librewired.getUserByID(int(userID))
+        if not user:
+            return 0
+        if user.login in self.config['adminUser']:
+            return 100
+        if isinstance(self.config['opUser'], list):
+            if user.login in self.config['opUser']:
+                return 50
+        if user.login in self.config['guestUser']:
+            return 1
+        return 25
+
+    def getCommandPrivs(self, command):
+        for aplugin in self.plugins:
+            if isinstance(aplugin.defines, list):
+                if command in aplugin.defines:
+                    plugin = aplugin
+                    break
+            else:
+                if aplugin.defines == command:
+                    plugin = aplugin
+                    break
+        try:
+            plugin.privs
+        except:
+            return -1
+        if command in plugin.privs:
+            return plugin.privs[command]
+        return -1

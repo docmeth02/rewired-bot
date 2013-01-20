@@ -7,6 +7,7 @@ from random import choice
 class rewiredBotPlugin():
     def __init__(self, *args):
         self.defines = "!doh"
+        self.privs = {'!doh': 1}
         self.data = []
         self.lastupdate = 0
         self.update()

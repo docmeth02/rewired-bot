@@ -6,6 +6,7 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!translate"
+        self.privs = {'!translate': 1}
 
     def run(self, params, *args):
         if not params:

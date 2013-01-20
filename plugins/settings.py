@@ -2,6 +2,7 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!set"
+        self.privs = {'!set': 99}
 
     def run(self, params, *args):
         if not params:

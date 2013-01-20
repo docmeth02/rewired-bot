@@ -2,20 +2,10 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!debug"
+        self.privs = {'!debug': 99}
 
     def run(self, parameters, *args):
-        try:
-            userid = int(parameters)
-        except:
-            return 0
-
-        self.parent.librewired.sendPrivateMsg(userid, "Oink!")
+        print self.parent.librewired.userlist
         return 0
-
-        chatid = self.parent.librewired.startPrivateChat()
-        if not chatid:
-            print "Error"
-            return 0
-        print "Created Private Chat %s" % chatid
-        self.parent.librewired.invitePrivateChat(chatid, userid)
-        return 0
+        privs = self.parent.getPrivs(args[0][1])
+        return "Priv Level: " + str(privs)

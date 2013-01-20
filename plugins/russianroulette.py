@@ -5,6 +5,7 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!russianroulette"
+        self.privs = {'!russianroulette': 25}
 
     def run(self, *args):
         print args

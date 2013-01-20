@@ -5,6 +5,7 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!greet"
+        self.privs = {'!greet': 50}
         self.greet = 0  # False , "Guests", "All"
         self.parent.librewired.notify("__ClientJoin", self.clientJoined)
 

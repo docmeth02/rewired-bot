@@ -5,13 +5,17 @@ from pyfiglet import Figlet, FontNotFound
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.defines = "!ascii"
+        self.privs = {'!ascii': 1}
         self.parent = parent
 
     def run(self, *args):
         font = 'slant'
-        if args[0].upper() == "?FONTS":
-            f = Figlet(font)
-            return str(f.getFonts())
+        try:
+            if args[0].upper() == "?FONTS":
+                f = Figlet(font)
+                return str(f.getFonts())
+        except:
+            return "Usage: !ascii (%FontName%) Text / !ascii ?Fonts"
 
         param = regmatch(args[0], self.parent.config['paramDelimiter'])
         if param:

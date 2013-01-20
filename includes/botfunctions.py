@@ -24,6 +24,8 @@ def loadConfig(confFile):
     PidFile = string(default="rewiredbot.pid")
     # loglevels: debug, info, warning, error, none
     adminUser = list(default=list('admin', 'docmeth02'))
+    opUser = list(default=list())
+    guestUser = list(default=list('guest'))
     logLevel = string(default=debug)"""
     spec = default.split("\n")
     config = ConfigObj(confFile, list_values=False, stringify=True, configspec=spec)
