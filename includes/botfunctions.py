@@ -28,7 +28,7 @@ def loadConfig(confFile):
     guestUser = list(default=list('guest'))
     logLevel = string(default=debug)"""
     spec = default.split("\n")
-    config = ConfigObj(confFile, list_values=False, stringify=True, configspec=spec)
+    config = ConfigObj(confFile, list_values=True, stringify=True, configspec=spec)
     validator = Validator()
     config.validate(validator, copy=True)
     config.filename = confFile
@@ -36,6 +36,16 @@ def loadConfig(confFile):
     config['appVersion'] = "20121202A1"
     config['appName'] = "re:wired Bot"
     return config
+
+
+def saveConfig(newconfig, confFile):
+    from configobj import ConfigObj
+    config = ConfigObj(newconfig, list_values=True, stringify=True)
+    config.pop('appVersion')
+    config.pop('appName')
+    config.filename = confFile
+    config.write()
+    return 1
 
 
 def checkPlatform(name):
