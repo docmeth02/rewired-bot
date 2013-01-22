@@ -10,10 +10,14 @@ class rewiredBotPlugin():
 
     def run(self, *args):
         font = 'slant'
+
         try:
             if args[0].upper() == "?FONTS":
                 f = Figlet(font)
-                return str(f.getFonts())
+                fontlist = "Available fonts:\n"
+                fontlist += formatList(f.getFonts())
+                self.parent.librewired.sendPrivateMsg(int(args[1][1]), fontlist)
+                return 0
         except:
             return "Usage: !ascii (%FontName%) Text / !ascii ?Fonts"
 
@@ -26,9 +30,23 @@ class rewiredBotPlugin():
         else:
             text = args[0]
 
+        if not len(text):
+            return "Usage: !ascii (%FontName%) Text / !ascii ?Fonts"
+
         try:
             f = Figlet(font)
             text = f.renderText(text)
         except FontNotFound:
             return "Unknown font: " + str(font)
         return text
+
+
+def formatList(data):
+    cols = 4
+    rows = int(len(data)) / int(cols)
+    out = ""
+    for i in range(0, rows):
+        chunk = data[(i * cols):(i * cols) + cols]
+        out += "\t".join(chunk)
+        out += "\n"
+    return out
