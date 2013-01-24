@@ -5,10 +5,10 @@ from re import match, compile
 def loadConfig(confFile):
     #will read config file or create one with the required defaults
     from configobj import ConfigObj
-    from validate import Validator
+    from validate import Validator, VdtParamError
     default = """server = string(default="re-wired.info")
     port = integer(default=2000)
-    username = string("guest")
+    username = string(default="guest")
     password = string(default="")
     nick = string(default="re:Wired Bot")
     status = string(default="Another re:wired Bot")
@@ -28,11 +28,17 @@ def loadConfig(confFile):
     guestUser = list(default=list('guest'))
     logLevel = string(default=debug)"""
     spec = default.split("\n")
-    config = ConfigObj(confFile, list_values=True, stringify=True, configspec=spec)
-    validator = Validator()
-    config.validate(validator, copy=True)
-    config.filename = confFile
-    config.write()
+    try:
+        config = ConfigObj(confFile, list_values=True, stringify=True, configspec=spec)
+        print config
+        validator = Validator()
+        config.validate(validator, copy=True)
+        config.filename = confFile
+        config.write()
+    except VdtParamError as e:
+        print e
+        print "Failed To load Config!"
+
     config['appVersion'] = "20121202A1"
     config['appName'] = "re:wired Bot"
     return config

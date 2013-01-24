@@ -33,14 +33,12 @@ class rewiredbot():
     def run(self):
         self.librewired.status = self.config['status']
         self.librewired.loadIcon(self.config['icon'])
-        #if not self.librewired.connect("storage.m2-entertainment.de", 2000):
-        if not self.librewired.connect("shaosean.tk", 2000):
-            self.logger.error("Failed to connect!")
+        if not self.librewired.connect(self.config['server'], int(self.config['port'])):
+            self.logger.error("Failed to connect to %s! Check your config settings", self.config['server'])
             self.librewired.keepalive = 0
             exit()
-        #if not self.librewired.login(self.nick, "guest", "", True):
-        if not self.librewired.login(self.nick, "bot", "bot", True):
-            self.logger.error("Failed to login!")
+        if not self.librewired.login(self.nick, self.config['username'], self.config['password'], 1):
+            self.logger.error("Login failed! Check your username/password!")
             self.librewired.keepalive = 0
             exit()
         self.librewired.subscribe(300, self.gotChat)
@@ -49,8 +47,8 @@ class rewiredbot():
         self.librewired.notify("__ClientLeave", self.clientLeft)
         self.librewired.notify("__ClientStatusChange", self.statusChange)
         self.librewired.notify("__PrivateChatInvite", self.chatInvite)
-
         sleep(0.5)
+
         while self.librewired.keepalive:
             #main loop
             if self.config['userLogging']:
