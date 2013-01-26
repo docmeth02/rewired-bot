@@ -30,14 +30,12 @@ def loadConfig(confFile):
     spec = default.split("\n")
     try:
         config = ConfigObj(confFile, list_values=True, stringify=True, configspec=spec)
-        print config
         validator = Validator()
         config.validate(validator, copy=True)
         config.filename = confFile
         config.write()
     except VdtParamError as e:
-        print e
-        print "Failed To load Config!"
+        print "Error in  config file!"
 
     config['appVersion'] = "20121202A1"
     config['appName'] = "re:wired Bot"
