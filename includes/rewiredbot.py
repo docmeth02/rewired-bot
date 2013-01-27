@@ -4,7 +4,6 @@ from signal import signal, SIGINT, SIGTERM
 from sys import exit
 import botfunctions
 from botdb import *
-from transferlogger import *
 from eventlogging import *
 from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR
 
@@ -22,7 +21,6 @@ class rewiredbot():
         self.config = botfunctions.loadConfig('bot.conf')
         self.db = botDB(self)
         self.db.openDB()
-        self.userLogger = transferLogger(self)
         self.eventlog = eventLogger(self)
         self.plugins = []
         self.initPlugins()
@@ -51,8 +49,6 @@ class rewiredbot():
 
         while self.librewired.keepalive:
             #main loop
-            if self.config['userLogging']:
-                self.userLogger.doLog()
             if self.config['eventLog']:
                 self.eventlog.commitData()
             sleep(1)
