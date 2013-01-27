@@ -55,6 +55,9 @@ class eventLogger():
                 packed['data'] = data[2]
             if kind == 3 or kind == 4:  # join & leave
                 packed['data'] = None
+            if kind == 5 or kind == 6:  # kick & ban
+                packed['data'] = self.parent.librewired.getUserNameByID(data[2]) + chr(28) +\
+                self.parent.librewired.getNickByID(data[2]) + chr(28) + data[3]  # name,nick,msg
             packed['nick'] = user.nick
             packed['user'] = user.login
             packed['date'] = time()
@@ -83,4 +86,26 @@ class eventLogger():
             date = datetime.fromtimestamp(data['date'])
             unpacked += str(date.strftime("%H:%M")) + " <<< "
             unpacked += str(data['nick']) + " has left >>> "
+        if int(data['type']) == 5:
+            additional = data['data'].split(chr(28))
+            date = datetime.fromtimestamp(data['date'])
+            unpacked += str(date.strftime("%H:%M")) + " <<< "
+            unpacked += str(data['nick']) + "(" + data['user'] + ") kicked "
+            unpacked += additional[1] + "(" + additional[0] + ")"
+            try:
+                unpacked += '"' + additional[2] + '"'
+            except:
+                pass
+            unpacked += " >>> "
+        if int(data['type']) == 6:
+            additional = data['data'].split(chr(28))
+            date = datetime.fromtimestamp(data['date'])
+            unpacked += str(date.strftime("%H:%M")) + " <<< "
+            unpacked += str(data['nick']) + "(" + data['user'] + ") banned "
+            unpacked += additional[1] + "(" + additional[0] + ")"
+            try:
+                unpacked += '"' + additional[2] + '"'
+            except:
+                pass
+            unpacked += " >>> "
         return unpacked

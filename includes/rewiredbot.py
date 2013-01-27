@@ -43,6 +43,8 @@ class rewiredbot():
         self.librewired.subscribe(301, self.gotActionChat)
         self.librewired.notify("__ClientJoin", self.clientJoined)
         self.librewired.notify("__ClientLeave", self.clientLeft)
+        self.librewired.notify("__ClientKicked", self.clientKicked)
+        self.librewired.notify("__ClientBanned", self.clientBanned)
         self.librewired.notify("__ClientStatusChange", self.statusChange)
         self.librewired.notify("__PrivateChatInvite", self.chatInvite)
         sleep(0.5)
@@ -77,6 +79,16 @@ class rewiredbot():
     def clientLeft(self, msg):
         if self.config['eventLog']:
             self.eventlog.logEvent(4, [msg[1], msg[0]])
+        return 1
+
+    def clientKicked(self, msg):
+        if self.config['eventLog']:
+            self.eventlog.logEvent(5, [1, msg[0], msg[1], msg[2]])
+        return 1
+
+    def clientBanned(self, msg):
+        if self.config['eventLog']:
+            self.eventlog.logEvent(6, [1, msg[0], msg[1], msg[2]])
         return 1
 
     def gotActionChat(self, msg):

@@ -15,7 +15,6 @@ class rewiredBotPlugin():
             offset = len(self.parent.eventlog.buffer) - display
         for i in range(offset, len(self.parent.eventlog.buffer), 1):
             unpacked = 0
-            print i
             try:
                 unpacked = self.parent.eventlog.unpackEvent(self.parent.eventlog.buffer[i])
             except:
