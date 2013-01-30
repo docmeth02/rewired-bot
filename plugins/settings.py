@@ -42,3 +42,22 @@ class rewiredBotPlugin():
             self.parent.config['status'] = param
             self.parent.librewired.changeStatus(param)
             return 0
+
+        if cmd == "AUTORECONNECT":
+            status = {0: "Autoreconnect if off", 1: "Autoreconnect is on"}
+            if not param:
+                return status[int(self.parent.librewired.autoreconnect)]
+
+            if "ON" in param.upper():
+                self.parent.config['autoreconnect'] = True
+                self.parent.librewired.autoreconnect = 1
+
+            if "OFF" in param.upper():
+                self.parent.config['autoreconnect'] = False
+                self.parent.librewired.autoreconnect = 0
+
+            return status[int(self.parent.librewired.autoreconnect)]
+
+        if cmd == "ICON":
+            if not param:
+                return 0

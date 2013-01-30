@@ -31,6 +31,7 @@ class rewiredbot():
     def run(self):
         self.librewired.status = self.config['status']
         self.librewired.loadIcon(self.config['icon'])
+        self.librewired.autoreconnect = int(self.config['autoreconnect'])
         if not self.librewired.connect(self.config['server'], int(self.config['port'])):
             self.logger.error("Failed to connect to %s! Check your config settings", self.config['server'])
             self.librewired.keepalive = 0
