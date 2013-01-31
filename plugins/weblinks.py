@@ -44,9 +44,10 @@ class rewiredBotPlugin():
                     data = response.read()
                     if len(data):
                         host = urlparse(aurl)
-                        if 'youtube.com' in host.netloc.lower():
+                        if 'youtube.com' in host.netloc.lower() or 'youtu.be' in host.netloc.lower():
                             title = getSiteTitle(data)
                             if title:
+                                title = title[0:title.find("- YouTube") - 1]
                                 self.parent.librewired.sendChat(int(msg[0]), "Youtube video: " + title)
                             continue
                         if self.state == 2:

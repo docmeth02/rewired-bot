@@ -1,4 +1,5 @@
 from includes.botfunctions import saveConfig
+from os.path import exists
 
 
 class rewiredBotPlugin():
@@ -61,3 +62,8 @@ class rewiredBotPlugin():
         if cmd == "ICON":
             if not param:
                 return 0
+            if exists(param):
+                if self.parent.librewired.loadIcon(param):
+                    self.parent.config['icon'] = param
+                    return 0
+            return "Sorry, i can't find the file " + str(param)
