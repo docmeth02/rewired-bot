@@ -37,7 +37,7 @@ def loadConfig(confFile):
     except VdtParamError as e:
         print "Error in  config file!"
 
-    config['appVersion'] = "20121202A1"
+    config['appVersion'] = "20130102A1"
     config['appName'] = "re:wired Bot"
     return config
 
