@@ -9,16 +9,20 @@ from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR
 
 
 class rewiredbot():
-    def __init__(self):
+    def __init__(self, daemonize=0):
+        self.config = botfunctions.loadConfig('bot.conf')
+        if daemonize:
+            botfunctions.daemonize()
         self.logger = getLogger('lib:re:wired')
         ch = StreamHandler()
         self.logger.addHandler(ch)
-        self.logger.setLevel(DEBUG)
+        self.logger.setLevel(botfunctions.getLogLevel(self.config['logLevel']))
         self.librewired = rewiredclient.client(self)
         self.librewired.start()
-        self.sig1 = signal(SIGINT, self.serverShutdown)
-        self.sig2 = signal(SIGTERM, self.serverShutdown)
-        self.config = botfunctions.loadConfig('bot.conf')
+        self.sig1 = signal(SIGINT, self.botShutdown)
+        self.sig2 = signal(SIGTERM, self.botShutdown)
+        botfunctions.initLogfile(self, botfunctions.getLogLevel(self.config['logLevel']))
+        botfunctions.initPID(self.config)
         self.db = botDB(self)
         self.db.openDB()
         self.eventlog = eventLogger(self)
@@ -55,9 +59,10 @@ class rewiredbot():
             if self.config['eventLog']:
                 self.eventlog.commitData()
             sleep(1)
-        self.serverShutdown()
+        self.botShutdown()
 
-    def serverShutdown(self, *args):
+    def botShutdown(self, *args):
+        botfunctions.removePID(self.config)
         self.librewired.keepalive = 0
         self.db.closeDB()
         raise SystemExit

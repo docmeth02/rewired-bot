@@ -1,5 +1,8 @@
 from os.path import exists
+from os import fork, umask, setsid, dup2, unlink, getpid
+from sys import stdout, stderr, stdin
 from re import match, compile
+from logging import getLogger, Formatter, FileHandler
 
 
 def loadConfig(confFile):
@@ -20,10 +23,10 @@ def loadConfig(confFile):
     paramDelimiter = string(default="_")
     PidFile = string(default="rewiredbot.pid")
     # loglevels: debug, info, warning, error, none
+    logLevel = string(default=debug)
     adminUser = list(default=list('admin', 'docmeth02'))
     opUser = list(default=list())
-    guestUser = list(default=list('guest'))
-    logLevel = string(default=debug)"""
+    guestUser = list(default=list('guest'))"""
     spec = default.split("\n")
     try:
         config = ConfigObj(confFile, list_values=True, stringify=True, configspec=spec)
@@ -75,3 +78,78 @@ def regexclude(text, delimitStart, delimitEnd=False):
         return text[match.end():].strip()
     else:
         return text
+
+
+def daemonize():
+    if fork():
+        exit(0)
+    umask(0)
+    setsid()
+    if fork():
+        exit(0)
+    stdout.flush()
+    stderr.flush()
+    si = file('/dev/null', 'r')
+    so = file('/dev/null', 'a+')
+    se = file('/dev/null', 'a+', 0)
+    dup2(si.fileno(), stdin.fileno())
+    dup2(so.fileno(), stdout.fileno())
+    dup2(se.fileno(), stderr.fileno())
+    return 1
+
+
+def initPID(config):
+    pid = str(getpid())
+    try:
+        f = open(config['PidFile'], 'w')
+        f.write(pid)
+        f.close()
+    except:
+        print "Failed to write pid file to " + config['PidFile']
+        pass
+    return pid
+
+
+def removePID(config):
+    try:
+        unlink(config['PidFile'])
+    except:
+        print "failed to remove pid file"
+    return 1
+
+
+def getPID(config):
+    try:
+        f = open(config['PidFile'], 'r')
+        pid = f.read()
+        f.close()
+    except:
+        pid = 0
+        pass
+    return pid
+
+
+def initLogfile(parent, level):
+    if parent.config['logFile']:
+        log = getLogger('lib:re:wired')
+        formatter = Formatter('%(asctime)s: %(message)s', "%b %d %y - %H:%M:%S")
+        filehandler = FileHandler(str(parent.config['logFile']), "a")
+        filehandler.setLevel(level)
+        filehandler.setFormatter(formatter)
+        log.addHandler(filehandler)
+        return 1
+    return 0
+
+
+def getLogLevel(level):
+    from logging import DEBUG, INFO, WARN, ERROR
+    level = level.upper()
+    if level == "DEBUG":
+        return DEBUG
+    elif level == "INFO":
+        return INFO
+    elif level == "WARNING":
+        return WARN
+    elif level == "ERROR":
+        return ERROR
+    return WARN
