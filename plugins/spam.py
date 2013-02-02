@@ -15,6 +15,10 @@ class rewiredBotPlugin():
             return 0
         if not command:
             return "No command given"
+        if command.upper() == "!RELOAD":
+            self.data = {}
+            self.loadDict()
+            return "done reloading"
         for key, data in self.data.items():
             if command.upper() == key.upper():
                 return data
@@ -46,9 +50,3 @@ class rewiredBotPlugin():
                 data = data.rstrip('\r\n')
                 self.data[name] = data
         return 0
-
-
-"""test = rewiredBotPlugin()
-for key,value in test.data.items():
-        print key
-        print value"""
