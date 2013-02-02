@@ -134,16 +134,6 @@ class rewiredbot():
 
         return 1
 
-    def check_chat(self, line, returncleaned=0):
-        # no longer in use
-        mynames = {self.nick + ":", "@" + self.nick}
-        for aname in mynames:
-            if line[:len(aname)].upper() == aname.upper():
-                if returncleaned == 1:
-                    return line[(len(aname)):].strip()
-                return 1
-        return 0
-
     def parse_command(self, line):
         #parse command
         if not line.count("!", 0, 5):
