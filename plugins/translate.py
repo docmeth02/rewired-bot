@@ -7,17 +7,28 @@ class rewiredBotPlugin():
         self.parent = parent
         self.defines = "!translate"
         self.privs = {'!translate': 1}
+        self.deflang = None
 
     def run(self, params, *args):
         if not params:
-            # add usag info here
-            return 0
-
+            return "Usage: !translate [_EN_] Text to translate"
+        params = params.strip()
+        if params.upper()[0:8] == '!DEFAULT':
+            try:
+                default = params[8:]
+                default = default.strip()
+                self.deflang = default
+                return "Changed default translation language to " + self.deflang
+            except:
+                return 0
         lang = regmatch(params, self.parent.config['paramDelimiter'])
         if lang:
             text = regexclude(params, self.parent.config['paramDelimiter'])
         else:
-            lang = "auto"
+            if self.deflang:
+                lang = self.deflang
+            else:
+                lang = "auto"
             text = params
         return translate(text, to_langage=lang)
 
