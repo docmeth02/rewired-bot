@@ -1,3 +1,4 @@
+# make sure you have python-pkg-resources installed for this to work
 from includes.botfunctions import regmatch, regexclude
 from pyfiglet import Figlet, FontNotFound
 

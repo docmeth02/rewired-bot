@@ -5,22 +5,28 @@ from sys import exit
 import botfunctions
 from botdb import *
 from eventlogging import *
-from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR
+from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR, CRITICAL
 
 
 class rewiredbot():
-    def __init__(self, daemonize=0):
-        self.config = botfunctions.loadConfig('bot.conf')
+    def __init__(self, daemonize=0, bundled=0, configfile=0, bundleCallback=0):
+        if not configfile:
+            configfile = 'bot.conf'
+        self.config = botfunctions.loadConfig(configfile)
         if daemonize:
             botfunctions.daemonize()
         self.logger = getLogger('lib:re:wired')
-        ch = StreamHandler()
-        self.logger.addHandler(ch)
-        self.logger.setLevel(botfunctions.getLogLevel(self.config['logLevel']))
+        if  bundled:
+            self.bundled = 1
+            self.bundleCallback = bundleCallback
+        else:
+            ch = StreamHandler()
+            self.logger.addHandler(ch)
+            self.logger.setLevel(botfunctions.getLogLevel(self.config['logLevel']))
+            self.sig1 = signal(SIGINT, self.botShutdown)
+            self.sig2 = signal(SIGTERM, self.botShutdown)
         self.librewired = rewiredclient.client(self)
         self.librewired.start()
-        self.sig1 = signal(SIGINT, self.botShutdown)
-        self.sig2 = signal(SIGTERM, self.botShutdown)
         botfunctions.initLogfile(self, botfunctions.getLogLevel(self.config['logLevel']))
         botfunctions.initPID(self.config)
         self.db = botDB(self)
@@ -38,10 +44,14 @@ class rewiredbot():
         self.librewired.autoreconnect = int(self.config['autoreconnect'])
         if not self.librewired.connect(self.config['server'], int(self.config['port'])):
             self.logger.error("Failed to connect to %s! Check your config settings", self.config['server'])
+            if self.bundled:
+                self.bundleCallback("CONNECT")
             self.librewired.keepalive = 0
             exit()
         if not self.librewired.login(self.nick, self.config['username'], self.config['password'], 1):
             self.logger.error("Login failed! Check your username/password!")
+            if self.bundled:
+                self.bundleCallback("LOGIN")
             self.librewired.keepalive = 0
             exit()
         self.librewired.subscribe(300, self.gotChat)

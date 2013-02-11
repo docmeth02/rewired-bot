@@ -4,7 +4,8 @@ from time import time
 
 
 class rewiredBotPlugin():
-    def __init__(self, *args):
+    def __init__(self, parent, *args):
+        self.parent = parent
         self.defines = "!roundhouseme"
         self.privs = {'!roundhouseme': 1}
         self.data = []
@@ -20,7 +21,7 @@ class rewiredBotPlugin():
         return output.decode('string_escape')
 
     def update(self, *args):
-        print "Updating !roundhouse dict."
+        self.parent.logger.info("Updating !roundhouse dict.")
         rpc = urlopen('http://www.chucknorrisfactoids.com/ultrandom.js')
         data = rpc.readlines()
         rpc.close()
