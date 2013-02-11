@@ -1,5 +1,9 @@
 from os.path import exists
-from os import fork, umask, setsid, dup2, unlink, getpid
+try:
+    from os import umask, setsid, dup2, fork
+except:
+    pass  # process forking is na on windows - boohoo
+from os import unlink, getpid
 from sys import stdout, stderr, stdin
 from re import match, compile
 from logging import getLogger, Formatter, FileHandler

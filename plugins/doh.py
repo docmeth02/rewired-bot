@@ -5,7 +5,8 @@ from random import choice
 
 
 class rewiredBotPlugin():
-    def __init__(self, *args):
+    def __init__(self, parent, *args):
+        self.parent = parent
         self.defines = "!doh"
         self.privs = {'!doh': 1}
         self.data = []
@@ -22,7 +23,7 @@ class rewiredBotPlugin():
 
     def update(self, *args):
         self.data = []
-        print "Updating !doh dict."
+        self.parent.logger.info("Updating !doh dict.")
         quotes = parse(urlopen("http://www.happycow.org.uk/inspiration/quotes_simpson.xml"))
         for node in quotes.getElementsByTagName("quote"):
             aquote = node.firstChild.nodeValue

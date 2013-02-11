@@ -32,7 +32,12 @@ class ThreadedApp:
         self.checkQueue()
 
     def checkQueue(self):
-        self.gui.processIncoming()
+        try:
+            args = self.queue.get_nowait()
+            if args:
+                tkMessageBox.showerror(args[0], args[1])
+        except:
+            pass
         if not self.running:
             sys.exit(1)
         self.master.after(250, self.checkQueue)
@@ -104,12 +109,10 @@ class ThreadedApp:
 
     def errorCallback(self, errtype):
         if errtype == 'CONNECT':
-            tkMessageBox.showinfo("Connection Error", "re:wired Bot failed to connect to %s\
-                                  Check your server and port settings." % self.gui.config['server'])
+            self.queue.put(["Connection Error", "re:wired Bot failed to connect to %s\nCheck your server and port settings." % self.gui.config['server']])
             return 0
         if errtype == 'LOGIN':
-            tkMessageBox.showinfo("Login failed", "Login for user %s failed.\
-                                  Check your username and password." % self.gui.config['username'])
+            self.queue.put(["Login failed", "Login for user %s failed.\nCheck your username and password." % self.gui.config['username']])
             return 0
         return 1
 
