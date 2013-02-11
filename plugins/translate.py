@@ -8,6 +8,7 @@ class rewiredBotPlugin():
         self.defines = "!translate"
         self.privs = {'!translate': 1}
         self.deflang = None
+        self.maxurilength = 2048
 
     def run(self, params, *args):
         if not params:
@@ -30,6 +31,8 @@ class rewiredBotPlugin():
             else:
                 lang = "auto"
             text = params
+            if len(text) > self.maxurilength:
+                text = text[:self.maxurilength]
         return translate(text, to_langage=lang)
 
 
