@@ -1,4 +1,10 @@
 from pygeoip import GeoIP  # pygeoip
+from os.path import exists
+from time import time
+from datetime import datetime
+from random import choice
+import json
+import pytz
 
 
 class rewiredBotPlugin():
@@ -6,7 +12,46 @@ class rewiredBotPlugin():
         self.parent = parent
         self.defines = "!greet"
         self.privs = {'!greet': 50}
-        self.greet = 0  # False , "Guests", "All"
+        self.defaultbrain = {
+            'locales': {
+                'en':
+                {'greetings':
+                ['Welcome %NICK%. You are connecting from %LOCATION%',
+                'Good %TIMEOFDAY% %NICK%. You are connecting from %LOCATION%',
+                'Yo %NICK%'],
+                'timeofday':
+                    ['morning', 'day', 'afternoon']
+                },
+
+                'de':
+                {'greetings':
+                    ['Guten %TIMEOFDAY% %NICK%. Du kommst aus %LOCATION%',
+                    'Hi %NICK%. Gruss nach %LOCATION%',
+                    '%TIMEOFDAY% %NICK%'],
+                'timeofday':
+                    ['Morgen', 'Mittag', 'Abend']
+                },
+
+                'it':
+                {'greetings':
+                    ['Ciao utente %NICK. Sembra che tu ti stia collegando dall\'%LOCATION%.']
+                }
+                }
+        }
+
+        if exists('greetings.json'):
+            with open('greetings.json', 'r') as f:
+                try:
+                    self.brain = json.loads(f.read())
+                except:
+                    self.parent.logger.error("greet: Failed to load greetings from file. Check your syntax")
+                    self.brain = self.defaultbrain
+        else:
+            with open('greetings.json', 'w') as f:
+                self.parent.logger.info("greet: Saved default greetings to config file")
+                f.write(json.dumps(self.defaultbrain))
+        print self.brain
+        self.greet = False  # False , "Guests", "All"
         self.parent.librewired.notify("__ClientJoin", self.clientJoined)
 
     def run(self, *args):
@@ -28,6 +73,38 @@ class rewiredBotPlugin():
         return "Usage: !greet off/guest/all"
 
     def clientJoined(self, msg):
+        if not self.greet or msg[1] != 1:  # set to not greet or not public chat
+            return 0
+
+        user = self.parent.librewired.getUserByID(int(msg[0]))
+        if not user or (user.login != 'guest' and self.greet == "guest"):  # failed to find user or not greet guests
+            return 0
+        geodata = self.get_geolocation(user)
+        greetings = self.brain['locales']['en']  # default to english
+        if geodata['country_code'].lower() in self.brain['locales']:  # check for available locale greetings
+            greetings = self.brain['locales'][geodata['country_code'].lower()]
+        greeting = self.parseString(user, greetings, geodata)
+        if greeting:
+            self.parent.librewired.sendChat(msg[1], greeting)
+        return 0
+
+    def parseString(self, user, greetings, geodata):
+        greeting = greetings['greetings'][0]
+        if len(greetings['greetings']) > 1:
+            greeting = choice(greetings['greetings'])
+        greeting = greeting.replace('%NICK%', user.nick)
+        greeting = greeting.replace('%LOCATION%', geodata['country_name'])
+        greeting = greeting.replace('%CITY%', geodata['city'])
+        hour = int(datetime.fromtimestamp(time()).strftime('%H'))
+        try:
+            hour = int(datetime.now(pytz.timezone(geodata['time_zone'])).strftime('%H'))
+        except:
+            pass
+        timeofday = greetings['timeofday'][self.getTimeOfDay(hour)]
+        greeting = greeting.replace('%TIMEOFDAY%', timeofday)
+        return greeting
+
+    def clientJoinedold(self, msg):
         if not self.greet:
             return 0
         if msg[1] == 1 and self.greet:  # this is public chat
@@ -49,26 +126,35 @@ class rewiredBotPlugin():
                 self.parent.librewired.sendChat(msg[1], greeting)
         return 1
 
-    def get_geolocation(self, ip, includeCity=0):
+    def get_geolocation(self, user):
+        if not user.ip:
+            self.parent.librewired.getUserInfo(user.id)
+        if not user.ip:
+            return 0
         from os.path import exists
         dbpath = "GeoLiteCity.dat"
         if not exists(dbpath):
             return 0
         location = 0
         gloc = GeoIP(dbpath)
-        data = gloc.record_by_addr(ip)
-        location = ""
-        if includeCity:
-            try:
-                if 'city' in data:
-                    if data['city']:
-                        location += data['city'] + "/"
-            except TypeError:
-                pass
+        data = gloc.record_by_addr(user.ip)
         try:
-            location += data['country_name']
-        except TypeError:
-            pass
-        if location:
-            return location.encode("utf-8")
-        return 0
+            geodata = {
+                'city': data['city'].encode("utf-8"),
+                'country_code': data['country_code'].encode("utf-8"),
+                'country_name': data['country_name'].encode("utf-8"),
+                'time_zone': data['time_zone'].encode("utf-8"),
+                }
+        except:
+            return 0
+        return geodata
+
+    def getTimeOfDay(self, hour):
+        print hour
+        # 0-12 = (0)morning, 12-17 = (1)noon, 17-0 = (2)evening
+        #hour = int(datetime.fromtimestamp(localtime).strftime('%H'))
+        if hour in range(0, 12):
+            return 0
+        if hour in range(12, 17):
+            return 1
+        return 2
