@@ -1,4 +1,6 @@
 from includes.botfunctions import regmatch, regexclude
+from time import sleep
+
 
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
@@ -21,12 +23,13 @@ class rewiredBotPlugin():
             except:
                 user = params[0]
                 nick = regmatch(user, self.config['paramDelimiter'])
-                if nick:
-                    user = None
-                try:
-                    lines = int(params[1])
-                except:
-                    lines = self.default
+                lines = self.default
+            if nick:
+                user = None
+            try:
+                lines = int(params[1])
+            except:
+                lines = self.default
         if user or nick:
             data = self.getFilteredChat(lines, user, nick)
         else:
@@ -44,42 +47,22 @@ class rewiredBotPlugin():
                     break
                 if unpacked:
                     self.parent.librewired.sendChat(chatid, unpacked)
+
             return 0
         return "Sorry, i got nothing"
 
-        return params[0]
-        display = 10
-        offset = 0
-        print "len: %s" % len(self.parent.eventlog.buffer)
-        if not self.config['eventLog']:
-            return 0
-        if len(self.parent.eventlog.buffer) > display:
-            offset = len(self.parent.eventlog.buffer) - display
-        for i in range(offset, len(self.parent.eventlog.buffer), 1):
-            unpacked = 0
-            try:
-                unpacked = self.parent.eventlog.unpackEvent(self.parent.eventlog.buffer[i])
-            except:
-                print "FAIL"
-            try:
-                chatid = int(args[1][0])
-            except:
-                break
-            if unpacked:
-                self.parent.librewired.sendChat(chatid, unpacked)
-        return 0
-
     def  getChatLines(self, lines):
+        data = []
         if len(self.parent.eventlog.buffer) < lines:
             # retrieve from db
-            data = []
-            data = self.parent.db.getEvents(lines)
-            if self.parent.eventlog.buffer:
-                data = self.parent.eventlog.buffer + data
-            if data:
-                del data[lines:]
-                data.reverse()
-                return data
+            data = self.parent.db.getEvents(lines - len(self.parent.eventlog.buffer))
+
+        if self.parent.eventlog.buffer:
+            data = self.parent.eventlog.buffer + data
+        if data:
+            del data[lines:]
+            data = sorted(data, key=lambda k: k['date'])
+            return data
         return 0
 
     def getFilteredChat(self, lines, user=None, nick=None):
@@ -98,8 +81,10 @@ class rewiredBotPlugin():
             if aevent[myFilter[0]] == myFilter[1]:
                 filtered.append(aevent)
         if len(filtered) < events:
-            data = self.parent.db.getEvents(lines - len(filtered), myFilter)
+            data = self.parent.db.getEvents(int(lines - len(filtered)), myFilter)
             if data:
                 data.reverse()
                 filtered = data + filtered
+
+        print "%s events fetched " % len(filtered)
         return filtered
