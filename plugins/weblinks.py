@@ -1,8 +1,10 @@
+# -*- coding: UTF-8 -*-
 import re
 import urllib2
 from urlparse import urlparse
+from HTMLParser import HTMLParser
 
-
+# http://www.targus.com/ca/product_details.asp?sku=TSB226CA&promo=&coupon=
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
@@ -38,24 +40,46 @@ class rewiredBotPlugin():
             for aurl in urls:
                 try:
                     response = urllib2.urlopen(aurl)
-                except urllib2.URLError:
+                except:
                     continue
                 if response:
-                    data = response.read()
+                    data = unicode(response.read(), errors='replace')
+                    data = data.encode("UTF-8")
                     if len(data):
                         host = urlparse(aurl)
                         if 'youtube.com' in host.netloc.lower() or 'youtu.be' in host.netloc.lower():
                             title = getSiteTitle(data)
                             if title:
                                 title = title[0:title.find("- YouTube") - 1]
-                                self.parent.librewired.sendChat(int(msg[0]), "Youtube video: " + title)
+                                self.parent.librewired.sendChat(int(msg[0]), "Youtube video: " + html_decode(title))
                             continue
                         if self.state == 2:
                             continue
                         title = getSiteTitle(data)
                         if title:
-                            self.parent.librewired.sendChat(int(msg[0]), str(host.netloc) + " page title: " + title)
+                            self.parent.librewired.sendChat(int(msg[0]), str(host.hostname) + " page title: "
+                                                            + html_decode(title))
         return 0
+
+
+def html_decode(s):
+    s = unicode(s, errors='replace')
+    s = s.encode("UTF-8")
+    codes = [
+        ["'", '&#39;'],
+        ['&', '&amp;'],
+        ['<', '&lt;'],
+        ['>', '&gt;'],
+        ['-', '&mdash;'],
+        ['"', '&quot;']]
+    for code in codes:
+        s = s.replace(code[1], code[0])
+    try:
+        parser = HTMLParser()
+        result = parser.unescape(s)
+    except:
+        return s
+    return html_decode(result)
 
 
 def getSiteTitle(html):
