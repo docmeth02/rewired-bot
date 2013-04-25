@@ -1,35 +1,47 @@
+# -*- coding: UTF-8 -*-
 from pygeoip import GeoIP  # pygeoip
 from os.path import exists
 from time import time
+from time import sleep
 from datetime import datetime
 from random import choice
 import json
-import pytz
+import pytz  # python-tz
 
 
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
-        self.defines = "!greet"
-        self.privs = {'!greet': 50}
+        self.defines = ["!greet", "!moo"]
+        self.privs = {'!greet': 50, "!moo": 1}
         self.defaultbrain = {
             'locales': {
                 'en':
                 {'greetings':
                 ['Welcome %NICK%. You are connecting from %LOCATION%',
                 'Good %TIMEOFDAY% %NICK%. You are connecting from %LOCATION%',
+                '%TIMEOFDAY% %NICK%',
                 'Yo %NICK%'],
                 'timeofday':
                     ['morning', 'day', 'afternoon']
                 },
-
+                'se':
+                    {'greetings':
+                        ['Hallå %NICK%',
+                        'God %TIMEOFDAY% %NICK%',
+                        'Välkommen %NICK%, du loggar in här ifrån %LOCATION%.'],
+                    'timeofday':
+                        ['morgon', 'dag', 'eftermiddag'],
+                    'country': 'Sverige'
+            },
                 'de':
                 {'greetings':
                     ['Guten %TIMEOFDAY% %NICK%. Du kommst aus %LOCATION%',
                     'Hi %NICK%. Gruss nach %LOCATION%',
                     '%TIMEOFDAY% %NICK%'],
                 'timeofday':
-                    ['Morgen', 'Mittag', 'Abend']
+                    ['Morgen', 'Mittag', 'Abend'],
+                'country': 'Deutschland'
                 },
 
                 'it':
@@ -50,11 +62,23 @@ class rewiredBotPlugin():
             with open('greetings.json', 'w') as f:
                 self.parent.logger.info("greet: Saved default greetings to config file")
                 f.write(json.dumps(self.defaultbrain))
-        print self.brain
+                self.brain = self.defaultbrain
         self.greet = False  # False , "Guests", "All"
         self.parent.librewired.notify("__ClientJoin", self.clientJoined)
 
     def run(self, *args):
+        command = self.parent.parse_command(args[1][2])
+        if command.upper() == "MOO":
+            try:
+                userid = int(args[0].strip())
+            except:
+                userid = 0
+            if userid:
+                self.clientJoined([userid, int(args[1][0])])
+            else:
+                self.clientJoined([int(args[1][1]), int(args[1][0])])
+            return 0
+
         if not args[0]:
             if not self.greet:
                 return "Set to greet no one"
@@ -81,10 +105,19 @@ class rewiredBotPlugin():
             return 0
         geodata = self.get_geolocation(user)
         greetings = self.brain['locales']['en']  # default to english
-        if geodata['country_code'].lower() in self.brain['locales']:  # check for available locale greetings
-            greetings = self.brain['locales'][geodata['country_code'].lower()]
-        greeting = self.parseString(user, greetings, geodata)
+        try:
+            if geodata['country_code'].lower() in self.brain['locales']:  # check for available locale greetings
+                greetings = self.brain['locales'][geodata['country_code'].lower()]
+            greeting = self.parseString(user, greetings, geodata)
+        except:
+            greeting = "HI " + str(user.nick)
         if greeting:
+            sleep(0.25)
+            try:
+                greeting = greeting.encode("UTF-8")
+            except:
+                print "UTF-8 conversion failed"
+                pass
             self.parent.librewired.sendChat(msg[1], greeting)
         return 0
 
@@ -93,7 +126,10 @@ class rewiredBotPlugin():
         if len(greetings['greetings']) > 1:
             greeting = choice(greetings['greetings'])
         greeting = greeting.replace('%NICK%', user.nick)
-        greeting = greeting.replace('%LOCATION%', geodata['country_name'])
+        if 'country' in greetings:
+            greeting = greeting.replace('%LOCATION%', greetings['country'])
+        else:
+            greeting = greeting.replace('%LOCATION%', geodata['country_name'])
         greeting = greeting.replace('%CITY%', geodata['city'])
         hour = int(datetime.fromtimestamp(time()).strftime('%H'))
         try:
@@ -103,28 +139,6 @@ class rewiredBotPlugin():
         timeofday = greetings['timeofday'][self.getTimeOfDay(hour)]
         greeting = greeting.replace('%TIMEOFDAY%', timeofday)
         return greeting
-
-    def clientJoinedold(self, msg):
-        if not self.greet:
-            return 0
-        if msg[1] == 1 and self.greet:  # this is public chat
-            user = self.parent.librewired.getUserByID(int(msg[0]))
-            if user:
-                if user.login != 'guest' and self.greet == "guest":
-                    return 0
-                greeting = "hi %s." % user.nick
-                try:
-                    if not user.ip:
-                        self.parent.librewired.getUserInfo(user.id)
-                    if user.ip:
-                        location = 0
-                        location = self.get_geolocation(user.ip)
-                        if location:
-                            greeting = greeting + (" You are connecting from %s" % location)
-                except:
-                    pass
-                self.parent.librewired.sendChat(msg[1], greeting)
-        return 1
 
     def get_geolocation(self, user):
         if not user.ip:
@@ -150,7 +164,6 @@ class rewiredBotPlugin():
         return geodata
 
     def getTimeOfDay(self, hour):
-        print hour
         # 0-12 = (0)morning, 12-17 = (1)noon, 17-0 = (2)evening
         #hour = int(datetime.fromtimestamp(localtime).strftime('%H'))
         if hour in range(0, 12):
