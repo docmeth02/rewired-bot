@@ -55,6 +55,11 @@ class ThreadedApp:
         self.gui.config['server'] = self.gui.server.get()
         self.gui.config['username'] = self.gui.username.get()
         self.gui.config['password'] = self.gui.passw.get()
+        adminuser = guifunctions.configStringToList(self.gui.adminuser.get())
+        if len(adminuser) < 1:
+            adminuser = ['admin']
+        self.gui.config['adminUser'] = adminuser
+        self.toggleWidgetState(False)
         guifunctions.rewriteConfig(self.gui.config)
         self.botthread = threading.Thread(target=self.spawnBot)
         self.botthread.start()
@@ -69,6 +74,20 @@ class ThreadedApp:
             self.botthread.join(2)
         self.botthread = 0
         self.botInstance = 0
+        self.toggleWidgetState(True)
+        return 1
+
+    def toggleWidgetState(self, state):
+        if state:
+            state = tk.NORMAL
+        else:
+            state = tk.DISABLED
+        self.gui.server.config(state=state)
+        self.gui.port.config(state=state)
+        self.gui.autoconnectbutton.config(state=state)
+        self.gui.adminuser.config(state=state)
+        self.gui.username.config(state=state)
+        self.gui.passw.config(state=state)
         return 1
 
     def monitorBot(self):
@@ -126,9 +145,9 @@ class gui:
         self.confDir = 0
         self.config = guifunctions.initConfig(self)
         self.platform = guifunctions.getPlatformString(self)
-        self.root.geometry("%dx%d+%d+%d" % (480, 360, 0, 0))
-        self.root.minsize(480, 360)
-        self.root.maxsize(480, 360)
+        self.root.geometry("%dx%d+%d+%d" % (480, 400, 0, 0))
+        self.root.minsize(480, 400)
+        self.root.maxsize(480, 400)
         self.root.title('re:wired Bot')
         self.root.createcommand('tkAboutDialog', self.showabout)  # replace about dialog on osx
         #self.root.createcommand('::tk::mac::ShowPreferences', prefs)
@@ -139,9 +158,9 @@ class gui:
         self.root.config(menu=self.apple)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        self.parentframe = ttk.Frame(width=480, height=360)
+        self.parentframe = ttk.Frame(width=480, height=4000)
         self.parentframe.place(in_=self.root)
-        self.frame = ttk.Frame(width=480, height=360)
+        self.frame = ttk.Frame(width=480, height=400)
         self.frame.place(in_=self.parentframe)
         self.frame.grid(column=0, row=0, sticky=(tk.E + tk.W) + (tk.N + tk.S), pady=15, padx=15)
         self.build()
@@ -155,6 +174,8 @@ class gui:
         self.username.delete(0, tk.END)
         self.username.insert(0, self.config['username'])
 
+        self.adminuser.delete(0, tk.END)
+        self.adminuser.insert(0, guifunctions.configListToString(self.config['adminUser']))
         self.passw.delete(0, tk.END)
         self.passw.insert(0, self.config['password'])
 
@@ -190,31 +211,38 @@ class gui:
         self.port.insert(0, "2000")
         self.port.grid(row=4, column=1, columnspan=1, sticky=tk.W + tk.E)
 
-        autoconnect = ttk.Checkbutton(self.frame, text="Connect on startup", variable=self.autoconnect,\
+        self.autoconnectbutton = ttk.Checkbutton(self.frame, text="Connect on startup", variable=self.autoconnect,\
                                       command=self.parent.toggleAutoStart)
-        autoconnect.grid(row=4, column=2, sticky=tk.E, pady=5, columnspan=1)
+        self.autoconnectbutton.grid(row=4, column=2, sticky=tk.E, pady=5, columnspan=1)
+
+        adminulabel = ttk.Label(self.frame, text="Admin Users:")
+        adminulabel.grid(row=5, column=0, sticky=tk.E, pady=12)
+
+        self.adminuser = tk.Entry(self.frame)
+        self.adminuser.grid(row=5, column=1, columnspan=2, sticky=tk.W + tk.E)
 
         namelabel = ttk.Label(self.frame, text="Username:")
-        namelabel.grid(row=5, column=0, sticky=tk.E, pady=12)
+        namelabel.grid(row=6, column=0, sticky=tk.E, pady=12)
+
         self.username = tk.Entry(self.frame)
         self.username.insert(0, "guest")
-        self.username.grid(row=5, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.username.grid(row=6, column=1, columnspan=2, sticky=tk.W + tk.E)
 
         passlabel = ttk.Label(self.frame, text="Password:")
-        passlabel.grid(row=6, column=0, sticky=tk.E, pady=12)
+        passlabel.grid(row=7, column=0, sticky=tk.E, pady=12)
         self.passw = tk.Entry(self.frame)
         self.passw.insert(0, "")
         self.passw.config(show="*")
-        self.passw.grid(row=6, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.passw.grid(row=7, column=1, columnspan=2, sticky=tk.W + tk.E)
 
         spacer2 = ttk.Separator(self.frame)
-        spacer2.grid(row=8, column=0, columnspan=3, sticky=tk.E + tk.W, pady=12)
+        spacer2.grid(row=9, column=0, columnspan=3, sticky=tk.E + tk.W, pady=12)
 
         self.startbutton = ttk.Button(self.frame, text='Connect', command=self.parent.startBot)
-        self.startbutton.place(x=140, y=300)
+        self.startbutton.place(x=140, y=340)
 
         self.stopbutton = ttk.Button(self.frame, text='Stop', command=self.parent.stopBot)
-        self.stopbutton.place(x=230, y=300)
+        self.stopbutton.place(x=230, y=340)
         return 1
 
     def showabout(self):

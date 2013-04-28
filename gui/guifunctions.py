@@ -78,6 +78,21 @@ def initConfig(parent):
     return config
 
 
+def configListToString(alist):
+    astring = ""
+    for aitem in alist:
+        astring += str(aitem) + ', '
+    return astring[0:len(astring)-2]
+
+
+def configStringToList(astring):
+    alist = []
+    parts = astring.split(',')
+    for apart in parts:
+        alist.append(apart.strip())
+    return alist
+
+
 def rewriteConfig(config):
     try:
         version = config['appVersion']
