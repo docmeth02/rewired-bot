@@ -4,7 +4,7 @@ import urllib2
 from urlparse import urlparse
 from HTMLParser import HTMLParser
 
-# http://www.targus.com/ca/product_details.asp?sku=TSB226CA&promo=&coupon=
+
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
@@ -43,7 +43,7 @@ class rewiredBotPlugin():
                 except:
                     continue
                 if response:
-                    data = unicode(response.read(), errors='replace')
+                    data = unicode(response.read(), errors='ignore')
                     data = data.encode("UTF-8")
                     if len(data):
                         host = urlparse(aurl)
@@ -63,7 +63,10 @@ class rewiredBotPlugin():
 
 
 def html_decode(s):
-    s = unicode(s, errors='replace')
+    try:
+        s = unicode(s, errors='ignore')
+    except:
+        pass
     s = s.encode("UTF-8")
     codes = [
         ["'", '&#39;'],
