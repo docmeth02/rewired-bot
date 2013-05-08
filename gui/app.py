@@ -53,6 +53,7 @@ class ThreadedApp:
         if self.botInstance:
             return 0
         self.gui.config['server'] = self.gui.server.get()
+        self.gui.config['port'] = int(self.gui.port.get())
         self.gui.config['username'] = self.gui.username.get()
         self.gui.config['password'] = self.gui.passw.get()
         adminuser = guifunctions.configStringToList(self.gui.adminuser.get())
