@@ -93,6 +93,8 @@ def getSiteTitle(html):
         lower = title.lower()
         begin = lower.find('<title>')
         end = lower.find('</title>')
-        return title[begin + 7:end].strip()
+        title = title[begin + 7:end].strip()
+        title = title.replace("\n", " ")
+        return title
     except:
         return 0
