@@ -92,7 +92,7 @@ class rewiredbot():
 
         return 1
 
-    def clientLeft(self, msg):
+    def clientLeft(self, msg, client):
         if self.config['eventLog']:
             self.eventlog.logEvent(4, [msg[1], msg[0]])
         return 1
