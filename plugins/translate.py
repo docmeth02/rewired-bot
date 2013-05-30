@@ -7,7 +7,7 @@ from HTMLParser import HTMLParser
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
-        self.defines = ["!translate,", "!tr"]
+        self.defines = ["!translate", "!tr"]
         self.privs = {'!translate': 1}
         self.deflang = 'en'
         self.auto = {}
