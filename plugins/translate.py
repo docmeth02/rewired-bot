@@ -69,9 +69,10 @@ class rewiredBotPlugin():
         if not int(msg[1]) in self.auto or '!' in msg[2][:1]:
             return 0
         if not int(msg[1]) == self.parent.librewired.id:
+            user = self.parent.librewired.userlist[int(msg[1])]
             translation = translate(msg[2], self.auto[int(msg[1])])
             if translation:
-                self.parent.librewired.sendChat(int(msg[0]), translation)
+                self.parent.librewired.sendChat(int(msg[0]), "%s: %s" % (user.nick, translation), 1)
             return 0
         return 0
 
