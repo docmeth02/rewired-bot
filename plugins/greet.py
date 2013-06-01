@@ -14,6 +14,7 @@ class rewiredBotPlugin():
         self.parent = parent
         self.defines = ["!greet", "!moo"]
         self.privs = {'!greet': 50, "!moo": 1}
+        self.parent.librewired.notify("__ClientLeave", self.clientleave)
         self.defaultbrain = {
             'locales': {
                 'en':
@@ -24,31 +25,33 @@ class rewiredBotPlugin():
                 'Yo %NICK%'],
                 'timeofday':
                     ['morning', 'day', 'afternoon']
-                },
+                 },
                 'se':
-                    {'greetings':
-                        ['Hallå %NICK%',
+                {'greetings':
+                    ['Hallå %NICK%',
                         'God %TIMEOFDAY% %NICK%',
                         'Välkommen %NICK%, du loggar in här ifrån %LOCATION%.'],
                     'timeofday':
-                        ['morgon', 'dag', 'eftermiddag'],
+                    ['morgon', 'dag', 'eftermiddag'],
                     'country': 'Sverige'
-            },
+                 },
                 'de':
                 {'greetings':
                     ['Guten %TIMEOFDAY% %NICK%. Du kommst aus %LOCATION%',
-                    'Hi %NICK%. Gruss nach %LOCATION%',
-                    '%TIMEOFDAY% %NICK%'],
+                     'Hi %NICK%. Gruss nach %LOCATION%',
+                     '%TIMEOFDAY% %NICK%'],
                 'timeofday':
                     ['Morgen', 'Mittag', 'Abend'],
                 'country': 'Deutschland'
-                },
+                 },
 
                 'it':
                 {'greetings':
-                    ['Ciao utente %NICK. Sembra che tu ti stia collegando dall\'%LOCATION%.']
-                }
-                }
+                    ['Ciao utente %NICK%. Sembra che tu ti stia collegando dall\'%LOCATION%.']
+                 },
+                'default':
+                ['Hi %NICK%', 'Welcome %NICK%', 'Nice to see you %NICK%']
+            }
         }
 
         if exists('greetings.json'):
@@ -110,7 +113,12 @@ class rewiredBotPlugin():
                 greetings = self.brain['locales'][geodata['country_code'].lower()]
             greeting = self.parseString(user, greetings, geodata)
         except:
-            greeting = "HI " + str(user.nick)
+            try:
+                greeting = choice(self.brain['locales']['default'])
+                greeting = greeting.replace('%NICK%', user.nick)
+            except Exception as e:
+                print e
+                greeting = "HI " + str(user.nick)
         if greeting:
             sleep(0.25)
             try:
@@ -158,10 +166,16 @@ class rewiredBotPlugin():
                 'country_code': data['country_code'].encode("utf-8"),
                 'country_name': data['country_name'].encode("utf-8"),
                 'time_zone': data['time_zone'].encode("utf-8"),
-                }
+            }
         except:
             return 0
         return geodata
+
+    def clientleave(self, *args):
+        #([534, 1], {'nick': 'docmeth02', 'user': 'guest'})
+        msg = "I never liked %s anyway" % args[1]['nick']
+        #self.parent.librewired.sendChat(args[0][1], msg)
+        return 0
 
     def getTimeOfDay(self, hour):
         # 0-12 = (0)morning, 12-17 = (1)noon, 17-0 = (2)evening
