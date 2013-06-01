@@ -34,6 +34,14 @@ class rewiredBotPlugin():
             except Exception as e:
                 self.parent.logger.error("auto translate: %s", e)
                 return 0
+            words = ['DISABLE', 'OFF']
+            if any(word in lang.upper() for word in words) or not lang:
+                # remove
+                try:
+                    del(self.auto[int(args[0][1])])
+                except Exception as e:
+                    self.parent.logger.error("auto translate: %s", e)
+                return "auto-translate deactivated"
             if int(args[0][0]) in self.auto and lang:
                 # change
                 self.auto[int(args[0][1])] = lang
@@ -42,12 +50,7 @@ class rewiredBotPlugin():
                 # add
                 self.auto[int(args[0][1])] = lang
                 return "auto-translate to '%s' activated" % lang
-            # remove
-            try:
-                del(self.auto[int(args[0][1])])
-            except Exception as e:
-                self.parent.logger.error("auto translate: %s", e)
-            return "auto-translate deactivated"
+            return 0
 
         lang = regmatch(params, self.parent.config['paramDelimiter'])
         if lang:
@@ -106,4 +109,7 @@ def translate(to_translate, to_langage="auto", langage="auto"):
         result = parser.unescape(result)
     except:
         pass
-    return html_decode(result)
+    result = html_decode(result)
+    if to_translate == result:
+        return 0
+    return result
