@@ -22,7 +22,10 @@ class rewiredBotPlugin():
 
     def update(self):
         parser = HTMLParser()
-        quotes = urllib2.urlopen("http://www.sterlingsays.it/")
+        try:
+            quotes = urllib2.urlopen("http://www.sterlingsays.it/")
+        except urllib2.URLError:
+            return 0
         lines = quotes.readlines()
 
         for aline in lines:
