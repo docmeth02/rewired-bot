@@ -79,7 +79,7 @@ def regexclude(text, delimitStart, delimitEnd=False):
     pattern = compile('\\' + str(delimitStart) + '(.*?)\\' + str(delimitEnd))
     match = pattern.search(text)
     if match:
-        return text[match.end():].strip()
+        return text[0:match.start()].strip() + text[match.end():].strip()
     else:
         return text
 
