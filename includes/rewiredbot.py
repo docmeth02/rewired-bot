@@ -62,6 +62,8 @@ class rewiredbot():
         self.librewired.notify("__ClientBanned", self.clientBanned)
         self.librewired.notify("__ClientStatusChange", self.statusChange)
         self.librewired.notify("__PrivateChatInvite", self.chatInvite)
+        self.librewired.notify("__ClientKicked", self.clientKicked)
+        self.librewired.notify("__ClientBanned", self.clientBanned)
         sleep(0.5)
 
         while self.librewired.keepalive:
@@ -243,3 +245,16 @@ class rewiredbot():
         if command in plugin.privs:
             return plugin.privs[command]
         return -1
+
+    def clientKicked(self, params, ban=False):
+        print "IN KICK"
+        killerid, victimid, text = params
+        if int(victimid) == int(self.librewired.id):
+            with self.librewired.lock:
+                self.librewired.autoreconnect = 0
+                self.librewired.keepalive = 0
+            #self.botShutdown()
+        return
+
+    def clientBanned(self, params):
+        self.clientKicked(params, True)
