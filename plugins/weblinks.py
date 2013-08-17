@@ -34,6 +34,29 @@ class rewiredBotPlugin():
         msg = chat.msg
         if int(msg[1]) == (self.parent.librewired.id) or not self.state:
             return 0
+        hasimdb = 1
+        if re.findall(r'(tt[0-9]+)', msg[2]):
+            # imdb
+            imdbids = re.findall(r'(tt[0-9]+)', str(msg[2]))
+            try:
+                    from plugins import imdb
+            except Exception as e:
+                hasimdb = 0
+            if msg[2][:5].upper() != '!IMDB' and hasimdb:
+                for aid in imdbids:
+                    tvshow = imdb.getTVbyIMDB(aid)
+                    if tvshow:
+                        imdb.outputTVShow(tvshow, int(msg[0]), self.parent.librewired, link=False)
+                        continue
+                    else:
+                        movie = imdb.lookupMovie(aid)
+                    if movie:
+                        imdb.outputMovie(movie, int(msg[0]), self.parent.librewired, link=False)
+                return 0
+            if msg[2][:5].upper() == '!IMDB':
+                print "MOO"
+                return 0
+
         urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', str(msg[2]))
         if urls:
             debug = ""
