@@ -248,7 +248,6 @@ class rewiredbot():
         return -1
 
     def clientKicked(self, params, ban=False):
-        print "IN KICK"
         killerid, victimid, text = params
         if int(victimid) == int(self.librewired.id):
             with self.librewired.lock:
