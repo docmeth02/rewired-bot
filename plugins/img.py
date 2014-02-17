@@ -8,33 +8,75 @@ from re import findall
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
-        self.defines = "!img"
-        self.privs = {'!img': 25}
+        self.defines = ["!img", '!imgadd', '!imgdel']
+        self.privs = {'!img': 1, '!imgadd': 25, '!imgdel': 25}
 
-    def run(self, *args):
-        chat = int(args[1][0])
-        try:
-            text = str(args[0])
-        except:
-            text = 0
-        if len(findall(r'([\w]{13})', text)):
-            image = getImage(gid=text)
-        else:
-            image = getImage(text)
-        if isinstance(image, dict):
-            if not 'url' in image.keys():
-                return 0
-            description = '#:%s' % image['id']
-            if 'tags' in image.keys():
-                if len(image['tags']):
-                    description += ' Tags: %s' % image['tags']
-                else:
-                    tags = ''
-            self.parent.librewired.sendChat(chat, chr(128) + '[img]' + decode(image['url']) + '[/img]')
-            if len(description):
-                self.parent.librewired.sendChat(chat, decode(description))
-        else:
-            return "No images for %s" % decode(text)
+        self.parent.librewired.subscribe(300, self.monitorChat)
+        self.parent.librewired.subscribe(301, self.monitorChat)
+
+    def run(self, params, *args):
+        command = self.parent.parse_command(args[0][2])
+        chat = int(args[0][0])
+        if command.lower() == 'img':
+            try:
+                text = str(params)
+            except:
+                text = 0
+            if len(findall(r'([\w]{13,14})', text)):
+                image = getImage(gid=text)
+            else:
+                image = getImage(text)
+            if isinstance(image, dict):
+                if not 'url' in image.keys():
+                    return 0
+                description = '#:%s' % image['id']
+                if 'tags' in image.keys():
+                    if len(image['tags']):
+                        description += ' Tags: %s' % image['tags']
+                    else:
+                        tags = ''
+                self.parent.librewired.sendChatImage(chat, '', {'type': 'url', 'data': decode(image['url'])})
+                if len(description):
+                    self.parent.librewired.sendChat(chat, decode(description))
+            else:
+                return "No images for %s" % decode(text)
+            return 0
+        elif command.lower() == 'imgadd':
+            if not len(params):
+                return "!imgadd giphyid imagename"
+            result = findall(r'([\w]{13,14}) ([\w ]+)', str(params))
+            if len(result) == 1:
+                imgid, name = result[0]
+                if imgid and name:
+                    if self.parent.storage.get('plugin.img', name.lower()):
+                        return "::%s already exists." % name.lower()
+                    if self.parent.storage.store('plugin.img', {name.lower(): imgid}):
+                        return "added ::%s" % name.lower()
+                    else:
+                        return "::%s not added" % name
+            return "!imgadd giphyid imagename"
+        elif command.lower() == 'imgdel':
+            if not len(params):
+                return "!imgdel imagename"
+            if not self.parent.storage.get('plugin.img', params.lower()):
+                return "::%s no such image" % params.lower()
+            if self.parent.storage.remove('plugin.img', params.lower()):
+                return "removed ::%s" % params.lower()
+        return 0
+
+    def monitorChat(self, chat):
+        msg = chat.msg
+        if int(msg[1]) == (self.parent.librewired.id):
+            return 0
+        token = findall(r'\:\:\w+', msg[2])
+        if len(token):
+            name = token[0][2:].lower()
+            if self.parent.storage.exists('plugin.img', name):
+                image = getImage(gid=self.parent.storage.get('plugin.img', name))
+                if isinstance(image, dict):
+                    if not 'url' in image.keys():
+                        return 0
+                self.parent.librewired.sendChatImage(int(msg[0]), '', {'type': 'url', 'data': decode(image['url'])})
         return 0
 
 
