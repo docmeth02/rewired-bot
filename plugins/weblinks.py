@@ -54,13 +54,19 @@ class rewiredBotPlugin():
                         imdb.outputMovie(movie, int(msg[0]), self.parent.librewired, link=False)
                 return 0
             if msg[2][:5].upper() == '!IMDB':
-                print "MOO"
                 return 0
 
         urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', str(msg[2]))
         if urls:
             debug = ""
             for aurl in urls:
+                # is this a image?
+                parser = urlparse(aurl)
+                if parser.scheme in ['http', 'https']:
+                    if parser.path[-4:] in ['jpeg', '.jpg', '.png', '.gif']:
+                        self.parent.librewired.sendChatImage(int(msg[0]), '', {'type': 'url', 'data': aurl})
+                        continue
+                # is this a valid html document with a title tag we can use?
                 try:
                     response = urllib2.urlopen(aurl)
                 except:
