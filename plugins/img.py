@@ -2,6 +2,7 @@
 import urllib2
 from urllib import urlencode
 from json import loads
+from re import findall
 
 
 class rewiredBotPlugin():
@@ -16,28 +17,37 @@ class rewiredBotPlugin():
             text = str(args[0])
         except:
             text = 0
-        image = getImage(text)
+        if len(findall(r'([\w]{13})', text)):
+            image = getImage(gid=text)
+        else:
+            image = getImage(text)
         if isinstance(image, dict):
             if not 'url' in image.keys():
                 return 0
+            description = '#:%s' % image['id']
             if 'tags' in image.keys():
                 if len(image['tags']):
-                    tags = 'Tags: %s' % image['tags']
+                    description += ' Tags: %s' % image['tags']
                 else:
                     tags = ''
             self.parent.librewired.sendChat(chat, chr(128) + '[img]' + decode(image['url']) + '[/img]')
-            if len(tags):
-                self.parent.librewired.sendChat(chat, decode(tags))
+            if len(description):
+                self.parent.librewired.sendChat(chat, decode(description))
         else:
             return "No images for %s" % decode(text)
         return 0
 
 
-def getImage(search=0):
+def getImage(search=0, gid=0):
     params = {'api_key': 'dc6zaTOxFJmzC'}
-    if search:
+    if gid:
+        url = 'http://api.giphy.com/v1/gifs/%s?%s' % (str(gid), urlencode(params))
+
+    elif search:
         params['tag'] = search
-    url = 'http://api.giphy.com/v1/gifs/random?%s' % urlencode(params)
+        url = 'http://api.giphy.com/v1/gifs/random?%s' % urlencode(params)
+    if not url:
+        return 0
     try:
         res = urllib2.urlopen(url)
     except:
@@ -53,13 +63,25 @@ def getImage(search=0):
 
     else:
         return 0
-    try:
-        tags = 0
-        if 'tags' in image.keys():
-            tags = ', '.join(image['tags'])
-    except:
-        return 0
-    return {'url': image['image_url'], 'tags': tags}
+    if not gid:
+        try:
+            tags = 0
+            if 'tags' in image.keys():
+                tags = ', '.join(image['tags'])
+        except:
+            return 0
+        return {'id':  image['id'], 'url': image['image_url'], 'tags': tags}
+
+    elif gid:
+        if 'images' in image.keys():
+            result = image['images']
+        else:
+            return 0
+        try:
+            url = result['original']['url']
+        except:
+            return 0
+        return {'id':  image['id'], 'url': url, 'tags': ''}
 
 
 def decode(s):
