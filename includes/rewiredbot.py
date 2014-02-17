@@ -3,6 +3,7 @@ from time import sleep
 from signal import signal, SIGINT, SIGTERM
 from sys import exit
 import botfunctions
+import simplestorage
 from botdb import *
 from eventlogging import *
 from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR, CRITICAL
@@ -32,6 +33,7 @@ class rewiredbot():
         botfunctions.initPID(self.config)
         self.db = botDB(self)
         self.db.openDB()
+        self.storage = simplestorage.simpleStorage()
         self.eventlog = eventLogger(self)
         self.plugins = []
         self.initPlugins()
