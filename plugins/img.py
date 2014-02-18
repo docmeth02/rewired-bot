@@ -8,8 +8,8 @@ from re import findall
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
-        self.defines = ["!img", '!imgadd', '!imgdel']
-        self.privs = {'!img': 1, '!imgadd': 25, '!imgdel': 25}
+        self.defines = ["!img", '!imgadd', '!imgdel', '!imglist']
+        self.privs = {'!img': 1, '!imgadd': 25, '!imgdel': 25, '!imglist': 1}
 
         self.parent.librewired.subscribe(300, self.monitorChat)
         self.parent.librewired.subscribe(301, self.monitorChat)
@@ -62,6 +62,11 @@ class rewiredBotPlugin():
                 return "::%s no such image" % params.lower()
             if self.parent.storage.remove('plugin.img', params.lower()):
                 return "removed ::%s" % params.lower()
+        elif command.lower() == 'imglist':
+            images = self.parent.storage.get('plugin.img', None)
+            if len(images):
+                msg = '::' + ', ::'.join(images.keys())
+                self.parent.librewired.sendPrivateMsg(int(args[0][1]), '!img known images:\n%s' % msg)
         return 0
 
     def monitorChat(self, chat):
