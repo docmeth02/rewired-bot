@@ -9,7 +9,7 @@ class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = ["!img", '!imgadd', '!imgdel', '!imglist']
-        self.privs = {'!img': 1, '!imgadd': 25, '!imgdel': 25, '!imglist': 1}
+        self.privs = {'!img': 25, '!imgadd': 25, '!imgdel': 25, '!imglist': 1}
 
         self.parent.librewired.subscribe(300, self.monitorChat)
         self.parent.librewired.subscribe(301, self.monitorChat)
@@ -19,7 +19,10 @@ class rewiredBotPlugin():
         chat = int(args[0][0])
         if command.lower() == 'img':
             try:
-                text = str(params)
+                if isinstance(params, list):
+                    text = " ".join(params)
+                else:
+                    text = str(params)
             except:
                 text = 0
             if len(findall(r'([\w]{13,14})', text)):
