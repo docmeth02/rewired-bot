@@ -35,9 +35,12 @@ class simpleStorage():
 
     def get(self, scope, key):
         # returns value of key in scope
+        # if key is Null all data of scope will be returned
         with self.lock():
             if not scope in self.data.keys():
                 return 0
+            if not key:
+                return self.data[scope]
             try:
                 value = self.data[scope][key]
             except Exception:
