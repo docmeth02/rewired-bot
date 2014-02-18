@@ -48,19 +48,27 @@ class rewiredBotPlugin():
                 return "No images for %s" % decode(text)
             return 0
         elif command.lower() == 'imgadd':
+            result, url = (0, 0)
             if not len(params):
                 return "!imgadd giphyid imagename"
             result = findall(r'([\w]{12,14}) ([\w ]+)', str(params))
+            if not len(result):
+                url = findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png)) ([\w ]+)', str(params))
             if len(result) == 1:
                 imgid, name = result[0]
-                if imgid and name:
-                    if self.parent.storage.get('plugin.img', name.lower()):
+            elif len(url):
+                imgid, name = url[0]
+
+            if imgid and name:
+                if self.parent.storage.get('plugin.img', name.lower()):
                         return "::%s already exists." % name.lower()
-                    if self.parent.storage.store('plugin.img', {name.lower(): imgid}):
+                if self.parent.storage.store('plugin.img', {name.lower(): imgid}):
                         return "added ::%s" % name.lower()
-                    else:
+                else:
                         return "::%s not added" % name
-            return "!imgadd giphyid imagename"
+
+            return "!imgadd giphyid|url imagename"
+
         elif command.lower() == 'imgdel':
             if not len(params):
                 return "!imgdel imagename"
@@ -83,7 +91,13 @@ class rewiredBotPlugin():
         if len(token):
             name = token[0][2:].lower()
             if self.parent.storage.exists('plugin.img', name):
-                image = getImage(gid=self.parent.storage.get('plugin.img', name))
+                gid = self.parent.storage.get('plugin.img', name)
+                if len(findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png))', gid)):
+                if len(findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png))', gid)):
+                    image = {}
+                    image['url'] = gid
+                else:
+                    image = getImage(gid=gid)
                 if isinstance(image, dict):
                     if not 'url' in image.keys():
                         return 0
