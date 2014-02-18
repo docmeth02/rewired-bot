@@ -93,7 +93,6 @@ class rewiredBotPlugin():
             if self.parent.storage.exists('plugin.img', name):
                 gid = self.parent.storage.get('plugin.img', name)
                 if len(findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png))', gid)):
-                if len(findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png))', gid)):
                     image = {}
                     image['url'] = gid
                 else:
