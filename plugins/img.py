@@ -25,8 +25,11 @@ class rewiredBotPlugin():
                     text = str(params)
             except:
                 text = 0
-            if len(findall(r'([\w]{13,14})', text)):
+            if len(findall(r'([\w]{12,14})', text)):
                 image = getImage(gid=text)
+                if not image:
+                    # retry search using fulltext
+                    image = getImage(text)
             else:
                 image = getImage(text)
             if isinstance(image, dict):
@@ -47,7 +50,7 @@ class rewiredBotPlugin():
         elif command.lower() == 'imgadd':
             if not len(params):
                 return "!imgadd giphyid imagename"
-            result = findall(r'([\w]{13,14}) ([\w ]+)', str(params))
+            result = findall(r'([\w]{12,14}) ([\w ]+)', str(params))
             if len(result) == 1:
                 imgid, name = result[0]
                 if imgid and name:
@@ -123,6 +126,8 @@ def getImage(search=0, gid=0):
         return {'id':  image['id'], 'url': image['image_url'], 'tags': tags}
 
     elif gid:
+        if not len(image):
+            return 0
         if 'images' in image.keys():
             result = image['images']
         else:
