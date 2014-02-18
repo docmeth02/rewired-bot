@@ -32,7 +32,7 @@ class rewiredBotPlugin():
 
     def checkChat(self, chat):
         msg = chat.msg
-        if int(msg[1]) == (self.parent.librewired.id) or not self.state:
+        if int(msg[1]) == (self.parent.librewired.id) or not self.state or msg[2][:1] == '!':
             return 0
         hasimdb = 1
         if re.findall(r'(tt[0-9]+)', msg[2]):
@@ -52,8 +52,6 @@ class rewiredBotPlugin():
                         movie = imdb.lookupMovie(aid)
                     if movie:
                         imdb.outputMovie(movie, int(msg[0]), self.parent.librewired, link=False)
-                return 0
-            if msg[2][:5].upper() == '!IMDB':
                 return 0
 
         urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', str(msg[2]))
