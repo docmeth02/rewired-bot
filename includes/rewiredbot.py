@@ -139,8 +139,8 @@ class rewiredbot():
                 if userprivs >= reqprivs:
                     result = command['command'].run(command['parameter'], chat)
                 else:
-                    result = "Sorry, " + str(self.librewired.getNickByID(chat[1])) + "... You are not allowed to use !"
-                    + self.check_command(chat[2], 1)
+                    name = str(self.check_command(chat[2], 1))
+                    result = "Sorry, " + str(self.librewired.getNickByID(chat[1])) + "... You are not allowed to use !%s" % name
                 if result:
                         self.librewired.sendChat(int(chat[0]), result)
             else:
