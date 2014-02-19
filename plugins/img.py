@@ -48,7 +48,7 @@ class rewiredBotPlugin():
                 return "No images for %s" % decode(text)
             return 0
         elif command.lower() == 'imgadd':
-            result, url = (0, 0)
+            result, url, imgid, name = (0, 0, 0, 0)
             if not len(params):
                 return "!imgadd giphyid imagename"
             result = findall(r'([\w]{12,14}) ([\w ]+)', str(params))
