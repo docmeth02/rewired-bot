@@ -106,6 +106,7 @@ class rewiredBotPlugin():
 
 def getImage(search=0, gid=0):
     params = {'api_key': 'dc6zaTOxFJmzC'}
+    url = 0
     if gid:
         url = 'http://api.giphy.com/v1/gifs/%s?%s' % (str(gid), urlencode(params))
 
