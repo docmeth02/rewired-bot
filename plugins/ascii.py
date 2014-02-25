@@ -11,7 +11,11 @@ class rewiredBotPlugin():
 
     def run(self, *args):
         font = 'slant'
-
+        try:
+            chatid = int(args[1][0])
+        except:
+            print "FAILED"
+            return 0
         try:
             if args[0].upper() == "?FONTS":
                 f = Figlet(font)
@@ -33,13 +37,18 @@ class rewiredBotPlugin():
 
         if not len(text):
             return "Usage: !ascii (%FontName%) Text / !ascii ?Fonts"
-
+        asciitext = 0
         try:
             f = Figlet(font)
-            text = f.renderText(text)
+            asciitext = f.renderText(text)
         except FontNotFound:
             return "Unknown font: " + str(font)
-        return text
+        if asciitext:
+            lines = asciitext.split('\n')
+            for aline in lines:
+                if len(aline.strip()):
+                    self.parent.librewired.sendChat(chatid, chr(15) + aline)
+        return 0
 
 
 def formatList(data):
