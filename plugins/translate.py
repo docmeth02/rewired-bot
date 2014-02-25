@@ -1,4 +1,4 @@
-from includes.botfunctions import regmatch, regexclude
+from re import findall
 from urllib2 import Request, urlopen
 from urllib import urlencode
 from HTMLParser import HTMLParser
@@ -7,54 +7,122 @@ from HTMLParser import HTMLParser
 class rewiredBotPlugin():
     def __init__(self, parent, *args):
         self.parent = parent
-        self.defines = ["!translate", "!tr"]
-        self.privs = {'!translate': 1}
+        self.defines = ["!translate", "!tr", "!listlang"]
+        self.privs = {'!translate': 1, '!tr': 1, '!listlang': 1}
         self.deflang = 'en'
         self.auto = {}
         self.maxurilength = 2048
         self.parent.librewired.subscribe(300, self.checkChat)
         self.parent.librewired.subscribe(301, self.checkChat)
 
+        self.validLang = {
+            #https://developers.google.com/translate/v2/using_rest
+            'af': 'Afrikaans',
+            'sq': 'Albanian',
+            'ar': 'Arabic',
+            'az': 'Azerbaijani',
+            'eu': 'Basque',
+            'bn': 'Bengali',
+            'be': 'Belarusian',
+            'bg': 'Bulgarian',
+            'ca': 'Catalan',
+            'zh-cn': 'Chinese Simplified',
+            'zh_tw': 'Chinese Traditional',
+            'hr': 'Croatian',
+            'cs': 'Czech',
+            'da': 'Danish',
+            'nl': 'Dutch',
+            'en': 'English',
+            'eo': 'Esperanto',
+            'et': 'Estonian',
+            'tl': 'Filipino',
+            'fi': 'Finnish',
+            'fr': 'French',
+            'gl': 'Galician',
+            'ka': 'Georgian',
+            'de': 'German',
+            'el': 'Greek',
+            'gu': 'Gujarati',
+            'ht': 'Haitian Creole',
+            'iw': 'Hebrew',
+            'hi': 'Hindi',
+            'hu': 'Hungarian',
+            'is': 'Icelandic',
+            'id': 'Indonesian',
+            'ga': 'Irish',
+            'it': 'Italian',
+            'ja': 'Japanese',
+            'kn': 'Kannada',
+            'ko': 'Korean',
+            'la': 'Latin',
+            'lv': 'Latvian',
+            'lt': 'Lithuanian',
+            'mk': 'Macedonian',
+            'ms': 'Malay',
+            'mt': 'Maltese',
+            'no': 'Norwegian',
+            'fa': 'Persian',
+            'pl': 'Polish',
+            'pt': 'Portuguese',
+            'ro': 'Romanian',
+            'ru': 'Russian',
+            'sr': 'Serbian',
+            'sk': 'Slovak',
+            'sl': 'Slovenian',
+            'es': 'Spanish',
+            'sw': 'Swahili',
+            'sv': 'Swedish',
+            'ta': 'Tamil',
+            'te': 'Telugu',
+            'th': 'Thai',
+            'tr': 'Turkish',
+            'uk': 'Ukrainian',
+            'ur': 'Urdu',
+            'vi': 'Vietnamese',
+            'cy': 'Welsh',
+            'yi': 'Yiddish'}
+
     def run(self, params, *args):
+        command = self.parent.parse_command(args[0][2])
+        if command.lower() == 'listlang':
+            msg = "\n".join(['%s : %s' % (key, value) for (key, value) in self.validLang.items()])
+            self.parent.librewired.sendPrivateMsg(int(args[0][1]), '!translate valid languages:\n%s' % msg)
+            return 0
+
         if not params:
-            return "Usage: !translate [_EN_] Text to translate"
+            return "Usage: !translate en Text to translate\n type !listlang for language code list"
         params = params.strip()
-        if params.upper()[0:7] == '!DEFAULT':
-            try:
-                default = params[7:]
-                default = default.strip()
-                self.deflang = default
-                return "Changed default translation language to " + self.deflang
-            except:
-                return 0
+
         if params.upper()[0:4] == 'AUTO':
-            #(['1', '544', '!tr auto de'],)
             try:
-                lang = params[4:].strip()
+                lang = params[4:].strip().lower()
             except Exception as e:
                 self.parent.logger.error("auto translate: %s", e)
                 return 0
-            words = ['DISABLE', 'OFF']
-            if any(word in lang.upper() for word in words) or not lang:
+
+            if lang == 'disable' or lang == 'off':
                 # remove
                 try:
                     del(self.auto[int(args[0][1])])
                 except Exception as e:
                     self.parent.logger.error("auto translate: %s", e)
                 return "auto-translate deactivated"
+            if not lang in self.validLang.keys():
+                return "No such language: %s" % lang
             if int(args[0][0]) in self.auto and lang:
                 # change
                 self.auto[int(args[0][1])] = lang
-                return "Changed auto-translate to '%s'" % lang
+                return "auto-translate to %s" % self.validLang[lang]
             if lang:
                 # add
                 self.auto[int(args[0][1])] = lang
-                return "auto-translate to '%s' activated" % lang
+                return "auto-translate to %s" % self.validLang[lang]
             return 0
 
-        lang = regmatch(params, self.parent.config['paramDelimiter'])
-        if lang:
-            text = regexclude(params, self.parent.config['paramDelimiter'])
+        regex = '\A(default|%s){1} (.*)' % '|'.join(self.validLang.keys())
+        langparam = findall(regex, params)
+        if len(langparam):
+            lang, text = langparam[0]
         else:
             if self.deflang:
                 lang = self.deflang
@@ -63,6 +131,14 @@ class rewiredBotPlugin():
             text = params
             if len(text) > self.maxurilength:
                 text = text[:self.maxurilength]
+
+        if lang.lower() == 'default':
+            deflang = text.lower().strip()
+            if not deflang in self.validLang.keys():
+                    return "No such language %s" % deflang
+            self.deflang = deflang
+            return "Changed default translation language to %s" % self.validLang[deflang]
+
         return translate(text, to_langage=lang)
 
     def checkChat(self, chat):
@@ -80,7 +156,7 @@ class rewiredBotPlugin():
         return 0
 
 
-def html_decode(s):
+def decode(s):
     codes = [
         ["'", '&#39;'],
         ['&', '&amp;'],
@@ -109,7 +185,5 @@ def translate(to_translate, to_langage="auto", langage="auto"):
         result = parser.unescape(result)
     except:
         pass
-    result = html_decode(result)
-    if to_translate == result:
-        return 0
+    result = decode(result)
     return result
