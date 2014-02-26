@@ -41,6 +41,8 @@ class rewiredBotPlugin():
                         description += ' Tags: %s' % image['tags']
                     else:
                         tags = ''
+                # send url for non ssWired clients
+                self.parent.librewired.sendChat(chat, decode(image['url']), zankaonly=1)
                 self.parent.librewired.sendChatImage(chat, '', {'type': 'url', 'data': decode(image['url'])})
                 if len(description):
                     self.parent.librewired.sendChat(chat, decode(description))
@@ -100,6 +102,7 @@ class rewiredBotPlugin():
                 if isinstance(image, dict):
                     if not 'url' in image.keys():
                         return 0
+                self.parent.librewired.sendChat(int(msg[0]), decode(image['url']), zankaonly=1)
                 self.parent.librewired.sendChatImage(int(msg[0]), '', {'type': 'url', 'data': decode(image['url'])})
         return 0
 
