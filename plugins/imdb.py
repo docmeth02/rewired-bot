@@ -248,8 +248,13 @@ def searchTVShow(title, year=None):
 
 
 def getTVbyIMDB(imdid):
+    show = 0
     tvapi = tvdb_api.Tvdb()
-    data = tvapi._loadUrl('http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=%s' % imdid)
+    try:
+        data = tvapi._loadUrl('http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=%s' % imdid)
+    except Exception as e:
+        print "Fail tvapi:" % e
+        data = 0
     if data:
         try:
             xml = minidom.parseString(data)
