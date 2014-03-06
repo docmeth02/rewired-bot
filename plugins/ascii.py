@@ -45,9 +45,11 @@ class rewiredBotPlugin():
             return "Unknown font: " + str(font)
         if asciitext:
             lines = asciitext.split('\n')
+            sswired = chr(31).join(lines)
             for aline in lines:
                 if len(aline.strip()):
-                    self.parent.librewired.sendChat(chatid, chr(15) + aline)
+                    self.parent.librewired.sendChat(chatid, chr(14) + aline)
+            self.parent.librewired.sendChat(chatid, chr(129) + sswired)
         return 0
 
 
