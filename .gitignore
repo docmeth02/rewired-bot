@@ -1,2 +1,6 @@
+logfile
+brain.json
 pluginstorage.json
+greetings.json
 bot.conf
+*.pyc
