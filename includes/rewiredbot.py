@@ -94,7 +94,6 @@ class rewiredbot():
     def clientJoined(self, msg):
         if self.config['eventLog']:
             self.eventlog.logEvent(3, [msg[1], msg[0]])
-
         return 1
 
     def clientLeft(self, msg, client):
@@ -140,7 +139,8 @@ class rewiredbot():
                     result = command['command'].run(command['parameter'], chat)
                 else:
                     name = str(self.check_command(chat[2], 1))
-                    result = "Sorry, " + str(self.librewired.getNickByID(chat[1])) + "... You are not allowed to use !%s" % name
+                    result = "Sorry, " + str(self.librewired.getNickByID(chat[1]))\
+                        + "... You are not allowed to use !%s" % name
                 if result:
                         self.librewired.sendChat(int(chat[0]), result)
             else:
@@ -255,7 +255,6 @@ class rewiredbot():
             with self.librewired.lock:
                 self.librewired.autoreconnect = 0
                 self.librewired.keepalive = 0
-            #self.botShutdown()
         return
 
     def clientBanned(self, params):
