@@ -69,7 +69,19 @@ def loadConfig(confFile):
 
 
 def saveConfig(newconfig, confFile):
-    print "save config called!"
+    config = ConfigParser()
+    config.add_section("re:wired Bot")
+    listitems = ['adminuser', 'opuser', 'guestuser']
+    for akey, asetting in newconfig.items():
+        if akey in listitems and type(asetting) == list:
+            asetting = ', '.join(asetting)
+        config.set("re:wired Bot", akey, asetting)
+    try:
+        with open(confFile, 'w') as newfile:
+            config.write(newfile)
+    except Exception as e:
+        print "Failed to write default config file: %s" % e
+        return 0
     return 1
 
 
