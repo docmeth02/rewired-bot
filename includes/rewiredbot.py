@@ -13,6 +13,11 @@ class rewiredbot():
         if not configfile:
             configfile = 'bot.conf'
         self.config = botfunctions.loadConfig(configfile)
+        if not self.config:
+            print "Failed to load config File!"
+            raise SystemExit
+        self.config['appversion'] = botfunctions.gitVersion('includes')
+        self.config['appname'] = "re:wired Bot"
         if daemonize:
             botfunctions.daemonize()
         self.logger = getLogger('lib:re:wired')
@@ -23,12 +28,12 @@ class rewiredbot():
         else:
             ch = StreamHandler()
             self.logger.addHandler(ch)
-            self.logger.setLevel(botfunctions.getLogLevel(self.config['logLevel']))
+            self.logger.setLevel(botfunctions.getLogLevel(self.config['loglevel']))
             self.sig1 = signal(SIGINT, self.botShutdown)
             self.sig2 = signal(SIGTERM, self.botShutdown)
         self.librewired = rewiredclient.client(self)
         self.librewired.start()
-        botfunctions.initLogfile(self, botfunctions.getLogLevel(self.config['logLevel']))
+        botfunctions.initLogfile(self, botfunctions.getLogLevel(self.config['loglevel']))
         botfunctions.initPID(self.config)
         self.db = botDB(self)
         self.db.openDB()
@@ -36,14 +41,14 @@ class rewiredbot():
         self.plugins = []
         self.initPlugins()
         self.nick = self.config['nick']
-        self.librewired.appname = self.config['appName']
-        self.librewired.version = self.config['appVersion']
+        self.librewired.appname = self.config['appname']
+        self.librewired.version = self.config['appversion']
 
     def run(self):
         self.librewired.status = self.config['status']
         self.librewired.loadIcon(self.config['icon'])
         self.librewired.autoreconnect = int(self.config['autoreconnect'])
-        if not self.librewired.connect(self.config['server'], int(self.config['port'])):
+        if not self.librewired.connect(self.config['server'], self.config['port']):
             self.logger.error("Failed to connect to %s! Check your config settings", self.config['server'])
             if self.bundled:
                 self.bundleCallback("CONNECT")
@@ -204,12 +209,11 @@ class rewiredbot():
         user = self.librewired.getUserByID(int(userID))
         if not user:
             return 0
-        if user.login in self.config['adminUser']:
+        if user.login in self.config['adminuser']:
             return 100
-        if isinstance(self.config['opUser'], list):
-            if user.login in self.config['opUser']:
+        if user.login in self.config['opuser']:
                 return 50
-        if user.login in self.config['guestUser']:
+        if user.login in self.config['guestuser']:
             return 1
         return 25
 

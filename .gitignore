@@ -4,3 +4,4 @@ pluginstorage.json
 greetings.json
 bot.conf
 *.pyc
+includes/.gitversion

@@ -7,12 +7,13 @@ class botDB():
     def __init__(self, parent):
         self.parent = parent
         self.config = self.parent.config
+        self.config = self.parent.config
         self.dbIsOpen = 0
         self.conn = 0
         self.pointer = 0
 
     def openDB(self):
-        self.conn = connect(self.config['dbFile'], check_same_thread=False)
+        self.conn = connect(self.config['dbfile'], check_same_thread=False)
         self.conn.row_factory = Row
         self.pointer = self.conn.cursor()
         self.conn.text_factory = str
