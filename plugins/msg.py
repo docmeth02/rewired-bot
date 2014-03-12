@@ -22,9 +22,9 @@ class rewiredBotPlugin():
             self.deliverMsg(fullmsg[1])
             return 0
 
-        nick = regmatch(args[0], self.parent.config['paramDelimiter'])
+        nick = regmatch(args[0], '_')
         if nick:
-            msg = regexclude(args[0], self.parent.config['paramDelimiter'])
+            msg = regexclude(args[0], '_')
             name = nick
             isnick = 1
             #userid = self.parent.librewired.getUserByNick(name)

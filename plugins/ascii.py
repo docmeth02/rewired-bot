@@ -26,10 +26,10 @@ class rewiredBotPlugin():
         except:
             return "Usage: !ascii (%FontName%) Text / !ascii ?Fonts"
 
-        param = regmatch(args[0], self.parent.config['paramDelimiter'])
+        param = regmatch(args[0], '_')
         if param:
             font = param
-            text = regexclude(args[0], self.parent.config['paramDelimiter'])
+            text = regexclude(args[0], '_')
             if not text:
                 return 0
         else:

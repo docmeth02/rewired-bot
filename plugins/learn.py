@@ -41,13 +41,17 @@ class rewiredBotPlugin():
             item = 0
             index = 0
             try:
-                index = regmatch(params, self.parent.config['paramDelimiter'])
-                item = regexclude(params, self.parent.config['paramDelimiter'])
+                index = regmatch(params, '_')
+                item = regexclude(params, '_')
                 if index != '*':
                     index = int(index)
+                print index
+                print item
             except:
+                print "NOPE"
                 return 0
             if not item.upper() in self.brain:
+                print "NOPE2"
                 return 0
             if type(index) is int:
                 try:
@@ -61,9 +65,10 @@ class rewiredBotPlugin():
                 return 0
 
             self.brain[item.upper()].pop(index)
+            if not len(self.brain[item.upper()]):
+                self.brain.pop(item.upper(), None)
             if self.save():
-                return "Okay, I forgot " + " " + item + " " + self.parent.config['paramDelimiter'] + str(index) \
-                + self.parent.config['paramDelimiter']
+                return "Okay, I forgot" + " " + item + "  (" + str(index) + ")"
             return 0
 
     def save(self):
@@ -82,8 +87,7 @@ class rewiredBotPlugin():
             response = response + (command + ":\n")
             for n in range(len(self.brain[command.upper()])):
                 #self.parent.librewired.sendChat(int(param[0]), "[" + str(n) + "] " + self.brain[command][n])
-                response = response + (self.parent.config['paramDelimiter'] + " " + str(n) + " " \
-                                       + self.parent.config['paramDelimiter'] + self.brain[command.upper()][n] + "\n")
+                response = response + "(" + str(n) + ") " + self.brain[command.upper()][n] + "\n"
         if response:
             try:
                 response = response.encode('UTF-8')
