@@ -59,9 +59,9 @@ class ThreadedApp:
         adminuser = guifunctions.configStringToList(self.gui.adminuser.get())
         if len(adminuser) < 1:
             adminuser = ['admin']
-        self.gui.config['adminUser'] = adminuser
+        self.gui.config['adminuser'] = adminuser
         self.toggleWidgetState(False)
-        guifunctions.rewriteConfig(self.gui.config)
+        guifunctions.rewriteConfig(self.gui, self.gui.config)
         self.botthread = threading.Thread(target=self.spawnBot)
         self.botthread.start()
 
@@ -176,7 +176,7 @@ class gui:
         self.username.insert(0, self.config['username'])
 
         self.adminuser.delete(0, tk.END)
-        self.adminuser.insert(0, guifunctions.configListToString(self.config['adminUser']))
+        self.adminuser.insert(0, guifunctions.configListToString(self.config['adminuser']))
         self.passw.delete(0, tk.END)
         self.passw.insert(0, self.config['password'])
 

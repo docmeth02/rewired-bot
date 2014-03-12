@@ -58,21 +58,21 @@ def initConfig(parent):
         debugLog(parent, "creating new config file")
         config = botfunctions.loadConfig(configfile)
         config['icon'] = join(configdir, 'icon.png')
-        config['logFile'] = join(configdir, 'bot.log')
-        config['dbFile'] = join(configdir, 'rewiredBot.db')
-        config['serverPidFile'] = join(configdir, "PidFile.pid")
+        config['logfile'] = join(configdir, 'bot.log')
+        config['dbfile'] = join(configdir, 'rewiredBot.db')
+        config['pidfile'] = join(configdir, "rewiredbot.pid")
         config['status'] = "Another re:wired GUI Bot"
-        rewriteConfig(config)
+        botfunctions.saveConfig(config, join(configdir, 'bot.conf'))
     else:
         config = botfunctions.loadConfig(configfile)
     parent.configFile = configfile
     parent.confDir = configdir
-    if not exists(config['dbFile']):
-        file = open(config['dbFile'], 'w')
+    if not exists(config['dbfile']):
+        file = open(config['dbfile'], 'w')
         file.close()
     debugLog(parent, "initConfig done")
-    if not exists(config['logFile']):
-        file = open(config['logFile'], "w")
+    if not exists(config['logfile']):
+        file = open(config['logfile'], "w")
         file.write("Blank Logfile\n")
         file.close()
     return config
@@ -93,14 +93,15 @@ def configStringToList(astring):
     return alist
 
 
-def rewriteConfig(config):
+def rewriteConfig(parent, config):
+    version = 'unknown'
     try:
-        version = config['appVersion']
+        version = config['appversion']
     except KeyError:
         pass
-    config.write()
-    config['appVersion'] = version
-    return 1
+    botfunctions.saveConfig(config, join(parent.confDir, parent.configFile))
+    config['appversion'] = version
+    return config
 
 
 def debugLog(parent, text):
