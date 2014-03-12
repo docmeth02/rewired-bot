@@ -5,7 +5,6 @@ from sys import exit
 import botfunctions
 import simplestorage
 from botdb import *
-from eventlogging import *
 from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR, CRITICAL
 
 
@@ -34,7 +33,6 @@ class rewiredbot():
         self.db = botDB(self)
         self.db.openDB()
         self.storage = simplestorage.simpleStorage()
-        self.eventlog = eventLogger(self)
         self.plugins = []
         self.initPlugins()
         self.nick = self.config['nick']
@@ -71,8 +69,6 @@ class rewiredbot():
 
         while self.librewired.keepalive:
             #main loop
-            if self.config['eventLog']:
-                self.eventlog.commitData()
             sleep(1)
         self.botShutdown()
 
@@ -92,33 +88,21 @@ class rewiredbot():
         return 1
 
     def clientJoined(self, msg):
-        if self.config['eventLog']:
-            self.eventlog.logEvent(3, [msg[1], msg[0]])
         return 1
 
     def clientLeft(self, msg, client):
-        if self.config['eventLog']:
-            self.eventlog.logEvent(4, [msg[1], msg[0]])
         return 1
 
     def clientKicked(self, msg):
-        if self.config['eventLog']:
-            self.eventlog.logEvent(5, [1, msg[0], msg[1], msg[2]])
         return 1
 
     def clientBanned(self, msg):
-        if self.config['eventLog']:
-            self.eventlog.logEvent(6, [1, msg[0], msg[1], msg[2]])
         return 1
 
     def gotActionChat(self, msg):
-        if self.config['eventLog']:
-            self.eventlog.logEvent(2, msg.msg)
         return 1
 
     def gotChat(self, msg):
-        if self.config['eventLog']:  # if eventlog is enabled, log this chatline
-            self.eventlog.logEvent(1, msg.msg)
         chat = msg.msg
 
         if int(chat[1]) != int(self.librewired.id):  # we don't want to respond to ourself
@@ -150,7 +134,6 @@ class rewiredbot():
         return 1
 
     def parse_command(self, line):
-        #parse command
         if not line.count("!", 0, 5):
             return 0
         if line.count(" ") >= 1:
@@ -160,7 +143,6 @@ class rewiredbot():
         return command
 
     def check_command(self, line, parseOnly=0):
-        #parse command
         if not line.count("!", 0, 5):
             return 0
         if line.count(" ") >= 1:
