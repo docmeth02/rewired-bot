@@ -56,6 +56,8 @@ class ThreadedApp:
         self.gui.config['port'] = int(self.gui.port.get())
         self.gui.config['username'] = self.gui.username.get()
         self.gui.config['password'] = self.gui.passw.get()
+        self.gui.config['nick'] = self.gui.nick.get()
+        self.gui.config['status'] = self.gui.status.get()
         adminuser = guifunctions.configStringToList(self.gui.adminuser.get())
         if len(adminuser) < 1:
             adminuser = ['admin']
@@ -89,6 +91,8 @@ class ThreadedApp:
         self.gui.adminuser.config(state=state)
         self.gui.username.config(state=state)
         self.gui.passw.config(state=state)
+        self.gui.status.config(state=state)
+        self.gui.nick.config(state=state)
         return 1
 
     def monitorBot(self):
@@ -146,9 +150,9 @@ class gui:
         self.confDir = 0
         self.config = guifunctions.initConfig(self)
         self.platform = guifunctions.getPlatformString(self)
-        self.root.geometry("%dx%d+%d+%d" % (480, 400, 0, 0))
-        self.root.minsize(480, 400)
-        self.root.maxsize(480, 400)
+        self.root.geometry("%dx%d+%d+%d" % (480, 480, 0, 0))
+        self.root.minsize(480, 480)
+        self.root.maxsize(480, 480)
         self.root.title('re:wired Bot')
         self.root.createcommand('tkAboutDialog', self.showabout)  # replace about dialog on osx
         #self.root.createcommand('::tk::mac::ShowPreferences', prefs)
@@ -159,9 +163,9 @@ class gui:
         self.root.config(menu=self.apple)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        self.parentframe = ttk.Frame(width=480, height=4000)
+        self.parentframe = ttk.Frame(width=480, height=480)
         self.parentframe.place(in_=self.root)
-        self.frame = ttk.Frame(width=480, height=400)
+        self.frame = ttk.Frame(width=480, height=480)
         self.frame.place(in_=self.parentframe)
         self.frame.grid(column=0, row=0, sticky=(tk.E + tk.W) + (tk.N + tk.S), pady=15, padx=15)
         self.build()
@@ -179,6 +183,14 @@ class gui:
         self.adminuser.insert(0, guifunctions.configListToString(self.config['adminuser']))
         self.passw.delete(0, tk.END)
         self.passw.insert(0, self.config['password'])
+
+        self.status.delete(0, tk.END)
+        self.status.insert(0, self.config['status'])
+
+        self.nick.delete(0, tk.END)
+        self.nick.insert(0, self.config['nick'])
+
+
 
     def build(self):
         self.frame.columnconfigure(0, weight=0)
@@ -216,34 +228,46 @@ class gui:
                                       command=self.parent.toggleAutoStart)
         self.autoconnectbutton.grid(row=4, column=2, sticky=tk.E, pady=5, columnspan=1)
 
-        adminulabel = ttk.Label(self.frame, text="Admin Users:")
-        adminulabel.grid(row=5, column=0, sticky=tk.E, pady=12)
-
-        self.adminuser = tk.Entry(self.frame)
-        self.adminuser.grid(row=5, column=1, columnspan=2, sticky=tk.W + tk.E)
-
         namelabel = ttk.Label(self.frame, text="Username:")
-        namelabel.grid(row=6, column=0, sticky=tk.E, pady=12)
+        namelabel.grid(row=5, column=0, sticky=tk.E, pady=12)
 
         self.username = tk.Entry(self.frame)
         self.username.insert(0, "guest")
-        self.username.grid(row=6, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.username.grid(row=5, column=1, columnspan=2, sticky=tk.W + tk.E)
 
         passlabel = ttk.Label(self.frame, text="Password:")
-        passlabel.grid(row=7, column=0, sticky=tk.E, pady=12)
+        passlabel.grid(row=6, column=0, sticky=tk.E, pady=12)
         self.passw = tk.Entry(self.frame)
         self.passw.insert(0, "")
         self.passw.config(show="*")
-        self.passw.grid(row=7, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.passw.grid(row=6, column=1, columnspan=2, sticky=tk.W + tk.E)
+
+        nicklabel = ttk.Label(self.frame, text="Nick:")
+        nicklabel.grid(row=7, column=0, sticky=tk.E, pady=12)
+        self.nick = tk.Entry(self.frame)
+        self.nick.insert(0, "re:wired Bot")
+        self.nick.grid(row=7, column=1, columnspan=2, sticky=tk.W + tk.E)
+
+        statuslabel = ttk.Label(self.frame, text="Status:")
+        statuslabel.grid(row=8, column=0, sticky=tk.E, pady=12)
+        self.status = tk.Entry(self.frame)
+        self.status.insert(0, "Another re:wired Bot")
+        self.status.grid(row=8, column=1, columnspan=2, sticky=tk.W + tk.E)
+
+        adminulabel = ttk.Label(self.frame, text="Admin Users:")
+        adminulabel.grid(row=9, column=0, sticky=tk.E, pady=12)
+
+        self.adminuser = tk.Entry(self.frame)
+        self.adminuser.grid(row=9, column=1, columnspan=2, sticky=tk.W + tk.E)
 
         spacer2 = ttk.Separator(self.frame)
-        spacer2.grid(row=9, column=0, columnspan=3, sticky=tk.E + tk.W, pady=12)
+        spacer2.grid(row=10, column=0, columnspan=3, sticky=tk.E + tk.W, pady=12)
 
         self.startbutton = ttk.Button(self.frame, text='Connect', command=self.parent.startBot)
-        self.startbutton.place(x=140, y=340)
+        self.startbutton.place(x=140, y=425)
 
         self.stopbutton = ttk.Button(self.frame, text='Stop', command=self.parent.stopBot)
-        self.stopbutton.place(x=230, y=340)
+        self.stopbutton.place(x=230, y=425)
         return 1
 
     def showabout(self):
