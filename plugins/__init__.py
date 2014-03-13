@@ -8,6 +8,6 @@ for module in os.listdir(os.path.dirname(__file__)):
     try:
         __import__(module[:-3], locals(), globals())
         logger.info("Imported " + str(module[:-3]))
-    except:
-        logger.error("Failed to import " + str(module[:-3]))
+    except Exception as e:
+        logger.error("Failed to import %s: %s" % (module[:-3], e))
 del module
