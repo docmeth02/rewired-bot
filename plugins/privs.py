@@ -30,7 +30,7 @@ class rewiredBotPlugin():
             if user.login in self.parent.config['opuser']:
                 return user.login + " is already a op user"
             if not isinstance(self.parent.config['opuser'], list):
-                self.parent.config['opUser'] = []
+                self.parent.config['opuser'] = []
             self. parent.config['opuser'].append(user.login)
             return user.login + " is now op"
 
@@ -42,7 +42,7 @@ class rewiredBotPlugin():
                 return str(param) + " is no op user"
             if not user.login in self.parent.config['opuser']:
                 return str(param) + " is no op user"
-            self.parent.config['opUser'].remove(user.login)
+            self.parent.config['opuser'].remove(user.login)
             return "Okay, demoted user " + str(user.login)
 
         return 0  # "Usage: !privs !command / !privs User/Nick"
