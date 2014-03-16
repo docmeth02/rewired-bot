@@ -95,6 +95,7 @@ class ThreadedApp:
         self.gui.passw.config(state=state)
         self.gui.status.config(state=state)
         self.gui.nick.config(state=state)
+        self.gui.selecticon.config(state=state)
         return 1
 
     def monitorBot(self):
