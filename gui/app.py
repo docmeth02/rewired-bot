@@ -7,7 +7,9 @@ import threading
 import time
 import subprocess
 import logging
-from os import sep
+from tkFileDialog import askopenfilename
+from os import sep, path
+from PIL import Image, ImageTk
 from platform import python_version, system
 from includes import rewiredbot
 from gui import guifunctions
@@ -133,10 +135,12 @@ class ThreadedApp:
 
     def errorCallback(self, errtype):
         if errtype == 'CONNECT':
-            self.queue.put(["Connection Error", "re:wired Bot failed to connect to %s\nCheck your server and port settings." % self.gui.config['server']])
+            self.queue.put(["Connection Error", "re:wired Bot failed to connect to %s\n\
+                            Check your server and port settings." % self.gui.config['server']])
             return 0
         if errtype == 'LOGIN':
-            self.queue.put(["Login failed", "Login for user %s failed.\nCheck your username and password." % self.gui.config['username']])
+            self.queue.put(["Login failed", "Login for user %s failed.\n\
+                            Check your username and password." % self.gui.config['username']])
             return 0
         return 1
 
@@ -150,9 +154,9 @@ class gui:
         self.confDir = 0
         self.config = guifunctions.initConfig(self)
         self.platform = guifunctions.getPlatformString(self)
-        self.root.geometry("%dx%d+%d+%d" % (480, 480, 0, 0))
-        self.root.minsize(480, 480)
-        self.root.maxsize(480, 480)
+        self.root.geometry("%dx%d+%d+%d" % (480, 380, 0, 0))
+        self.root.minsize(480, 380)
+        self.root.maxsize(480, 380)
         self.root.title('re:wired Bot')
         self.root.createcommand('tkAboutDialog', self.showabout)  # replace about dialog on osx
         #self.root.createcommand('::tk::mac::ShowPreferences', prefs)
@@ -163,12 +167,20 @@ class gui:
         self.root.config(menu=self.apple)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        self.parentframe = ttk.Frame(width=480, height=480)
+        self.parentframe = ttk.Frame(width=480, height=380)
         self.parentframe.place(in_=self.root)
-        self.frame = ttk.Frame(width=480, height=480)
-        self.frame.place(in_=self.parentframe)
-        self.frame.grid(column=0, row=0, sticky=(tk.E + tk.W) + (tk.N + tk.S), pady=15, padx=15)
+        self.main = ttk.Frame(width=480, height=380)
+        self.main.place(in_=self.parentframe)
+        self.main.grid(column=0, row=0, sticky=(tk.E + tk.W) + (tk.N + tk.S), pady=0, padx=0)
+        self.connection = ttk.Frame(width=480, height=220)
+        self.settings = ttk.Frame(width=480, height=220)
+
         self.build()
+        self.notebook = ttk.Notebook(self.main)
+        self.notebook.grid(column=0, columnspan=4, row=2,
+                           sticky=(tk.E + tk.W) + (tk.N + tk.S), pady=0, padx=0)
+        self.notebook.add(self.connection, text="Connection")
+        self.notebook.add(self.settings, text="Settings")
 
         self.server.delete(0, tk.END)
         self.server.insert(0, self.config['server'])
@@ -190,85 +202,118 @@ class gui:
         self.nick.delete(0, tk.END)
         self.nick.insert(0, self.config['nick'])
 
-
-
     def build(self):
-        self.frame.columnconfigure(0, weight=0)
-        self.frame.columnconfigure(1, weight=1)
-        self.frame.columnconfigure(2, weight=1)
-        self.frame.columnconfigure(3, weight=0)
+        # setup main frame
+        self.main.columnconfigure(0, weight=0)
+        self.main.columnconfigure(1, weight=1)
+        self.main.columnconfigure(2, weight=1)
+        self.main.columnconfigure(3, weight=0)
         iconimageon = tk.PhotoImage(file="gui/re-wired-bot_on.gif", width=64, height=64)
         iconimageoff = tk.PhotoImage(file="gui/re-wired-bot_off.gif", width=64, height=64)
-        self.icon = ttk.Label(self.frame, image=iconimageoff)
+        self.icon = ttk.Label(self.main, image=iconimageoff)
         self.icon.imageon = iconimageon
         self.icon.imageoff = iconimageoff
-        self.icon.grid(row=0, column=0, rowspan=2, sticky=tk.E, padx=5)
-        self.statuslabel = ttk.Label(self.frame, text="re:wired Bot is not connected.",\
+        self.icon.grid(row=0, column=0, rowspan=2, sticky=tk.E, padx=15, pady=15)
+        self.statuslabel = ttk.Label(self.main, text="re:wired Bot is not connected.",
                                      font=("Lucida Grande Bold", 15))
-        self.statuslabel.grid(row=0, column=1, columnspan=2, sticky=tk.W, padx=15)
-        self.indicator = ttk.Label(self.frame, text=str(self.platform),\
-                                     font=("Lucida Grande", 12))
-        self.indicator.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=15)
-        spacer = ttk.Separator(self.frame)
-        spacer.grid(row=2, column=0, columnspan=3, sticky=tk.E + tk.W, pady=12)
+        self.statuslabel.grid(row=0, column=1, columnspan=2, sticky=tk.SW)
+        self.indicator = ttk.Label(self.main, text=str(self.platform),
+                                   font=("Lucida Grande", 12))
+        self.indicator.grid(row=1, column=1, columnspan=2, sticky=tk.NW)
 
-        serverlabel = ttk.Label(self.frame, text="Server:")
+        self.startbutton = ttk.Button(self.main, text='Connect', command=self.parent.startBot)
+        self.startbutton.place(x=140, y=335)
+
+        self.stopbutton = ttk.Button(self.main, text='Stop', command=self.parent.stopBot)
+        self.stopbutton.place(x=230, y=335)
+
+        # connection tab
+        self.connection.columnconfigure(0, weight=0)
+        self.connection.columnconfigure(1, weight=1)
+        self.connection.columnconfigure(2, weight=1)
+        self.connection.columnconfigure(3, weight=0)
+        serverlabel = ttk.Label(self.connection, text="Server:")
         serverlabel.grid(row=3, column=0, sticky=tk.E, pady=12)
-        self.server = tk.Entry(self.frame)
+        self.server = tk.Entry(self.connection)
         self.server.insert(0, "re-wired.info")
         self.server.grid(row=3, column=1, columnspan=2, sticky=tk.W + tk.E)
 
-        portlabel = ttk.Label(self.frame, text="Port:")
+        portlabel = ttk.Label(self.connection, text="Port:")
         portlabel.grid(row=4, column=0, sticky=tk.E, pady=12)
-        self.port = tk.Entry(self.frame)
+        self.port = tk.Entry(self.connection)
         self.port.insert(0, "2000")
         self.port.grid(row=4, column=1, columnspan=1, sticky=tk.W + tk.E)
 
-        self.autoconnectbutton = ttk.Checkbutton(self.frame, text="Connect on startup", variable=self.autoconnect,\
-                                      command=self.parent.toggleAutoStart)
+        self.autoconnectbutton = ttk.Checkbutton(self.connection, text="Connect on startup", variable=self.autoconnect,
+                                                 command=self.parent.toggleAutoStart)
         self.autoconnectbutton.grid(row=4, column=2, sticky=tk.E, pady=5, columnspan=1)
 
-        namelabel = ttk.Label(self.frame, text="Username:")
+        namelabel = ttk.Label(self.connection, text="Username:")
         namelabel.grid(row=5, column=0, sticky=tk.E, pady=12)
 
-        self.username = tk.Entry(self.frame)
+        self.username = tk.Entry(self.connection)
         self.username.insert(0, "guest")
         self.username.grid(row=5, column=1, columnspan=2, sticky=tk.W + tk.E)
 
-        passlabel = ttk.Label(self.frame, text="Password:")
+        passlabel = ttk.Label(self.connection, text="Password:")
         passlabel.grid(row=6, column=0, sticky=tk.E, pady=12)
-        self.passw = tk.Entry(self.frame)
+        self.passw = tk.Entry(self.connection)
         self.passw.insert(0, "")
         self.passw.config(show="*")
         self.passw.grid(row=6, column=1, columnspan=2, sticky=tk.W + tk.E)
 
-        nicklabel = ttk.Label(self.frame, text="Nick:")
-        nicklabel.grid(row=7, column=0, sticky=tk.E, pady=12)
-        self.nick = tk.Entry(self.frame)
+        #settings tab
+        self.settings.columnconfigure(0, weight=0)
+        self.settings.columnconfigure(1, weight=1)
+        self.settings.columnconfigure(2, weight=1)
+        self.settings.columnconfigure(3, weight=0)
+        nicklabel = ttk.Label(self.settings, text="Nick:")
+        nicklabel.grid(row=0, column=0, sticky=tk.E, pady=12)
+        self.nick = tk.Entry(self.settings)
         self.nick.insert(0, "re:wired Bot")
-        self.nick.grid(row=7, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.nick.grid(row=0, column=1, columnspan=2, sticky=tk.W + tk.E)
 
-        statuslabel = ttk.Label(self.frame, text="Status:")
-        statuslabel.grid(row=8, column=0, sticky=tk.E, pady=12)
-        self.status = tk.Entry(self.frame)
+        statuslabel = ttk.Label(self.settings, text="Status:")
+        statuslabel.grid(row=1, column=0, sticky=tk.E, pady=12)
+        self.status = tk.Entry(self.settings)
         self.status.insert(0, "Another re:wired Bot")
-        self.status.grid(row=8, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.status.grid(row=1, column=1, columnspan=2, sticky=tk.W + tk.E)
 
-        adminulabel = ttk.Label(self.frame, text="Admin Users:")
-        adminulabel.grid(row=9, column=0, sticky=tk.E, pady=12)
+        adminulabel = ttk.Label(self.settings, text="Admin Users:")
+        adminulabel.grid(row=2, column=0, sticky=tk.E, pady=12)
 
-        self.adminuser = tk.Entry(self.frame)
-        self.adminuser.grid(row=9, column=1, columnspan=2, sticky=tk.W + tk.E)
+        self.adminuser = tk.Entry(self.settings)
+        self.adminuser.grid(row=2, column=1, columnspan=2, sticky=tk.W + tk.E)
 
-        spacer2 = ttk.Separator(self.frame)
-        spacer2.grid(row=10, column=0, columnspan=3, sticky=tk.E + tk.W, pady=12)
+        boticonlabel = ttk.Label(self.settings, text="Icon:")
+        boticonlabel.grid(row=3, column=0, sticky=tk.E)
 
-        self.startbutton = ttk.Button(self.frame, text='Connect', command=self.parent.startBot)
-        self.startbutton.place(x=140, y=425)
+        if not path.exists(self.config['icon']):
+            self.config['icon'] = 'gui/icon.png'
+        self.boticondata = ImageTk.PhotoImage(file=self.config['icon'], width=32, height=32)
+        self.boticon = tk.Canvas(self.settings, bd=0, width=32, height=32, highlightthickness=0)
+        self.boticon.create_image(16, 16, image=self.boticondata, anchor='c')
+        self.boticon.grid(row=3, column=1, sticky=tk.W, padx=0)
 
-        self.stopbutton = ttk.Button(self.frame, text='Stop', command=self.parent.stopBot)
-        self.stopbutton.place(x=230, y=425)
+        self.selecticon = ttk.Button(self.settings, text="Change", command=self.selecticon)
+        self.selecticon.grid(row=3, column=1, sticky=tk.W, padx=40)
         return 1
+
+    def selecticon(self):
+        filename = askopenfilename(title='Select Image File', filetypes=[("Image Files",
+                                                                          "*.png"), ("PNG", '*.png')])
+        if not filename:
+            ## aborted
+            return 0
+        try:
+            self.boticondata = ImageTk.PhotoImage(file=filename, width=32, height=32)
+        except Exception as e:
+            print e
+            return 0
+        self.config['icon'] = filename
+        self.boticon.create_image(16, 16, image=self.boticondata, anchor='c')
+        guifunctions.rewriteConfig(self, self.config)
+        return 0
 
     def showabout(self):
         self.root.tk.call('tk::mac::standardAboutPanel')
