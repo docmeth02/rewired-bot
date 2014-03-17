@@ -4,6 +4,7 @@ from time import time
 
 
 class rewiredBotPlugin():
+    """Chuck Norris Facts"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!roundhouseme"
@@ -13,6 +14,9 @@ class rewiredBotPlugin():
         self.update()
 
     def run(self, *args):
+        """!roundhouseme: Usage: !roundhouseme
+        Display random Chuck Norris Facts
+        _"""
         if (self.lastupdate + 86400) < time():  # refresh once per day
             self.update()
         if not len(self.data):

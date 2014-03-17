@@ -10,10 +10,11 @@ import pytz  # python-tz
 
 
 class rewiredBotPlugin():
+    """Client greeter plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
-        self.defines = ["!greet", "!moo"]
-        self.privs = {'!greet': 50, "!moo": 1}
+        self.defines = ["!greet"]
+        self.privs = {'!greet': 50}
         self.parent.librewired.notify("__ClientLeave", self.clientleave)
         self.defaultbrain = {
             'locales': {
@@ -70,17 +71,18 @@ class rewiredBotPlugin():
         self.parent.librewired.notify("__ClientJoin", self.clientJoined)
 
     def run(self, *args):
+        """!greet: Usage: !greet off/guest/all
+        off - Greet no one.
+        guest - Greet all guest users joining the server.
+        all - Greet all users when they join the server.
+
+        Greetings are stored in a file called 'greetings.json' located in bots home directory.
+        Customisation of this file is possible, as long as the syntax stays intact.
+        The plugin will try to locate the user by ip address and apply time zone correction
+        if the local timezone of the user can be found. It is possible to define time and location
+        aware greetings in the greetings file. Always backup your greetings.json file before you modify it!
+        ___"""
         command = self.parent.parse_command(args[1][2])
-        if command.upper() == "MOO":
-            try:
-                userid = int(args[0].strip())
-            except:
-                userid = 0
-            if userid:
-                self.clientJoined([userid, int(args[1][0])])
-            else:
-                self.clientJoined([int(args[1][1]), int(args[1][0])])
-            return 0
 
         if not args[0]:
             if not self.greet:

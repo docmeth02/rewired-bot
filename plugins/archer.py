@@ -6,6 +6,7 @@ from time import time
 
 
 class rewiredBotPlugin():
+    """Archer quotes plugin"""
     def __init__(self, *args):
         self.defines = "!archer"
         self.quotes = []
@@ -13,6 +14,9 @@ class rewiredBotPlugin():
         self.update()
 
     def run(self, *args):
+        """!archer: Usage: !archer
+        Posts random quotes from the tv show Archer into chat.
+        ___"""
         if (self.lastupdate + 86400) < time():  # refresh once per day
             self.update()
         if not len(self.quotes):

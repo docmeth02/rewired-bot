@@ -6,6 +6,7 @@ from re import findall
 
 
 class rewiredBotPlugin():
+    """Chat images plugin. Watch for ::image tokens in chat."""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = ["!img", '!imgadd', '!imgdel', '!imglist']
@@ -15,6 +16,24 @@ class rewiredBotPlugin():
         self.parent.librewired.subscribe(301, self.monitorChat)
 
     def run(self, params, *args):
+        """!img: Usage: !img (giphyid/searchtext)
+        Will search giphy.com for a image that is tagged with searchtext
+        or in case a giphy id was given post the image to chat.
+        ___
+        !imgadd: Usage: !imgadd giphyid/url imagename
+        Store given image as ::imagename.
+        !imgadd 93G8N0mFV4f84 watchme
+        will make the image available as ::watchme
+        ___
+        !imgdel: Usage: !imgdel imagename
+        Delete image ::imagename from the image token list.
+        !imgdel watchme
+        removes image ::watchme
+        ___
+        !imglist: Usage: !imglist
+        Bot sends you a list of all valid image tokens via pm.
+        ___
+        """
         command = self.parent.parse_command(args[0][2])
         chat = int(args[0][0])
         if command.lower() == 'img':

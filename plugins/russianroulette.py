@@ -2,12 +2,16 @@ from random import choice
 
 
 class rewiredBotPlugin():
+    "Play Russian Roulette"
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!russianroulette"
         self.privs = {'!russianroulette': 25}
 
     def run(self, *args):
+        """!russianroulette: Usage: !russianroulette
+        Bot randomly pretends to kick people off the server
+        _"""
         print args
         players = []
         for key, user in self.parent.librewired.userlist.items():

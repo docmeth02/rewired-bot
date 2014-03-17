@@ -5,6 +5,7 @@ from HTMLParser import HTMLParser
 
 
 class rewiredBotPlugin():
+    """Google translate plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = ["!translate", "!tr", "!listlang"]
@@ -83,6 +84,19 @@ class rewiredBotPlugin():
             'yi': 'Yiddish'}
 
     def run(self, params, *args):
+        """!translate: Usage: !translate (lc|auto|default) text
+        Translate given text to default language or language
+        set by two letter language code (lc). Get all available
+        language codes by typing !listlang into chat.
+        !translate de Bot is awesome
+        translate "Bot is awesome" to german
+        !translate auto de
+        will enable auto translation for your user. Everything you
+        say in chat will be auto translated(to german in this case).
+        !translate auto off - stops auto translation for your user.
+        !translate default de - change default language for translations
+        to german(global default is english).
+        ___"""
         command = self.parent.parse_command(args[0][2])
         if command.lower() == 'listlang':
             msg = "\n".join(['%s : %s' % (key, value) for (key, value) in self.validLang.items()])

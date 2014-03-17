@@ -4,6 +4,7 @@ from includes.botfunctions import regmatch, regexclude
 
 
 class rewiredBotPlugin():
+    """Chat Facts Plugin. Adds ??facts tokens to chat."""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = ["!learn", "!forget"]
@@ -15,6 +16,22 @@ class rewiredBotPlugin():
                 self.brain = json.loads(f.read())
 
     def run(self, params, *args):
+        """!learn: Usage: !learn item fact
+        Remember "fact" about "item".
+        !learn bot is awesome
+        will rember that "bot" "is awsome".
+        Retrieve facts about "bot" by typing ??bot into chat
+        ___
+        !forget: Usage: !forget item _index_
+        Forget a fact about "item". Index is the number that is
+        displayed in front of the fact when doing ??item:
+        !forget bot _0_
+        forgets the first fact about bot. In case you want to
+        delete all facts for a item use * as index:
+        !forget bot _*_
+        will forget all about item "bot".
+        ___
+        """
         command = self.parent.parse_command(args[0][2])
 
         if str(command).upper() == "LEARN":

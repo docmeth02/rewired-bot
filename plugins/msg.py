@@ -3,6 +3,7 @@ from includes.botfunctions import regmatch, regexclude
 
 
 class rewiredBotPlugin():
+    """ Message bot plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.config = self.parent.config
@@ -13,6 +14,15 @@ class rewiredBotPlugin():
         self.parent.librewired.notify("__ClientJoin", self.clientJoined)
 
     def run(self, *args):
+        """!msg: Usage: !msg (user/_nick_ text)
+        Send user or anyone using the nickname nick a message even when
+        they are offline at the time you ask bot to send it.
+        Preferably !msg should be used in a private chat with bot as others
+        are able to read the message when posted to public chat.
+        In case you are the recipient of a message bot will notify you as
+        soon as you join the server. Just type !msg into public chat and bot
+        will forward all your mesages to you.
+        ___"""
         fullmsg = args[1]
         if not args[0]:
             nick = self.parent.librewired.getNickByID(fullmsg[1])

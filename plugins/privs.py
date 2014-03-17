@@ -1,10 +1,29 @@
 class rewiredBotPlugin():
+    """Privilege control plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = ["!+op", "!-op", "!privs"]
         self.privs = {'!+op': 99, '!-op': 99, '!privs': 99}
 
     def run(self, *args):
+        """!privs: Usage: !privs username/nick
+        Return current privilege score for user/nick
+        User Privileges are setup in bots config file.
+        Users can temporarily be opped by using !+op
+        to use certain commands that require higher privileges.
+        ___
+        !+op: Usage: !+op username
+        Elevate privilege score of this user to op level(50).
+        Note that certain commands may require owner privileges(99).
+        In case you want a user to be owner, edit the adminuser list
+        in bots config file.
+        ___
+        !-op: Usage: !-op username
+        Demote a previous opped user to default privilege level(5).
+        The user will no longer be able to use commands that require
+        op user privileges. In case the user is on the guestuser
+        list in bots config file the score is lowered to 1.
+        ___"""
         line = args[1][2]
         command = line[0:line.find(" ")]
         param = line[line.find(" "):].strip()

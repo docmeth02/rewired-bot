@@ -5,6 +5,7 @@ from random import choice
 
 
 class rewiredBotPlugin():
+    """Homer J. Simpson Quotes"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!doh"
@@ -14,6 +15,9 @@ class rewiredBotPlugin():
         self.update()
 
     def run(self, *args):
+        """!doh: Usage: !doh
+        Posts random Homer Simpson quotes to chat.
+        ___"""
         if (self.lastupdate + 86400) < time():  # refresh once per day
             self.update()
         if not len(self.data):

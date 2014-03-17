@@ -4,12 +4,18 @@ from pyfiglet import Figlet, FontNotFound
 
 
 class rewiredBotPlugin():
+    """Ascii Art plugin"""
     def __init__(self, parent, *args):
         self.defines = "!ascii"
         self.privs = {'!ascii': 1}
         self.parent = parent
 
     def run(self, *args):
+        """!ascii: Usage: !ascii (_FontName_) Your Text / !ascii ?Fonts
+        Posts custom ascii text art into chat.
+        ?Fonts will send you a list of fonts via pm.
+        Use custom fonts like this: !ascii _starwars_ Woooo Ascii Art!
+        ___"""
         font = 'slant'
         try:
             chatid = int(args[1][0])

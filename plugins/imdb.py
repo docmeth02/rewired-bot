@@ -13,12 +13,20 @@ tmdb3.set_locale('en', 'US')
 
 
 class rewiredBotPlugin():
+    """IMDb.com plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!imdb"
         self.privs = {'!imdb': 1}
 
     def run(self, params, *args):
+        """!imdb: Usage: !imdb imdbid/Text
+        Searches imdb.com for movies and tv shows.
+        When a search term is given. It will respond with a list
+        of results to choose from. When called with a imdbid instead:
+        !imdb tt0099785
+        the plugin will look up the movie on imdb and post a overview into chat.
+        ___"""
         if not params:
             return "Usage: !imdb SearchText"
         params = params.strip()

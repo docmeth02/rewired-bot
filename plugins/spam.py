@@ -3,6 +3,7 @@ from os import sep
 
 
 class rewiredBotPlugin():
+    """Ascii art spam plugin"""
     def __init__(self, *args):
         #self.parent = parent
         self.defines = "!spam"
@@ -11,6 +12,14 @@ class rewiredBotPlugin():
         self.loadDict()
 
     def run(self, command=0, *args):
+        """!spam: Usage: !spam !reload/name
+        Display ascii art stored in file spam.dict
+        located in bots plugin directory. Changes
+        made to the spam file can be reloaded by:
+        !spam !reload
+        !spam oink will display item oink defined in
+        spam.dict
+        _"""
         if not len(self.data):
             return 0
         if not command:

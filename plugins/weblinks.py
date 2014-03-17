@@ -6,6 +6,7 @@ from HTMLParser import HTMLParser
 
 
 class rewiredBotPlugin():
+    """Weblink preview plugin for images, websites and youtube videos"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.config = self.parent.config
@@ -16,6 +17,12 @@ class rewiredBotPlugin():
         self.parent.librewired.subscribe(301, self.checkChat)
 
     def run(self, msg, *args):
+        """!weblinks: Usage: !weblinks on|off|youtube
+        Alter the behaviour of link preview:
+        !weblinks off - No preview at all.
+        !weblinks youtube - Preview only youtube videos.
+        !weblinks all - Preview images, web sites and videos.
+        ____"""
         if not msg:
             display = {0: 'off', 1: 'on', 2: 'youtube only'}
             return "Current mode: " + display[self.state] + "\nUsage: !weblinks off/on/youtube"

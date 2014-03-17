@@ -7,17 +7,22 @@ operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
 
 
 class rewiredBotPlugin():
+    """Calculator plugin. Its a calculator!"""
     def __init__(self, *args):
         self.defines = "!calc"
         self.privs = {'!calc': 1}
 
     def run(*args):
+        """!calc: Usage: !calc 1+1
+        Use it like any other online calculator:
+        !calc 1+1, !calc 80085/1337, !calc 0.1*3.14159265
+        ___"""
         print args[1]
         try:
             result = eval_expr(args[1])
         except:
             return 0
-        if result != None:
+        if result is not None:
             if not result:
                 return '0 '
             return str(result)

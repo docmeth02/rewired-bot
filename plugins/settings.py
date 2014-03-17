@@ -3,12 +3,21 @@ from os.path import exists
 
 
 class rewiredBotPlugin():
+    """re:wired bot settings plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!set"
         self.privs = {'!set': 99}
 
     def run(self, params, *args):
+        """!set: Usage: !set nick|status|autoreconnect|icon|save value
+        Tune certain aspects of bots configuration:
+        !set nick anotherbot - Change nickname to anotherbot
+        !set status wooooo - Change bots status to wooooo
+        !set autoreconnect off|on - Turn on or off bots reconnection setting
+        !set icon /my/icon/path - Load new icon from path
+        !set save - Save new settings permanently and overwrite config file.
+        ___"""
         if not params:
             return 0
         try:

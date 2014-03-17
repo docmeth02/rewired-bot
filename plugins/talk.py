@@ -4,6 +4,7 @@ from re import sub, findall
 
 
 class rewiredBotPlugin():
+    """Pandorabots plugin. Talk directly to bot!"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!talk"
@@ -18,6 +19,11 @@ class rewiredBotPlugin():
         self.setupSession(self.botid)
 
     def run(self, params, *args):
+        """!talk: Usage: !talk botid pandorabotid
+        Setup the botid that will be used when users talk
+        to bot by directly sending chat to botnick:
+        !talk botid b0dafd24ee35a477
+        _"""
         if not params:
             return 0
         command = self.parent.parse_command(args[0][2])

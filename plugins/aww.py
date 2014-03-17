@@ -8,6 +8,7 @@ import praw
 
 
 class rewiredBotPlugin():
+    """reddit/aww plugin"""
     def __init__(self, parent, *args):
         self.parent = parent
         self.defines = "!aww"
@@ -16,6 +17,9 @@ class rewiredBotPlugin():
         self.reddit.update()
 
     def run(self, params, *args):
+        """!aww: Usage: !aww
+        Posts random images from http://www.reddit.com/r/aww into chat.
+        ___"""
         chatid = int(args[0][0])
         if not self.reddit.lastupdate or self.reddit.lastupdate <= (time() - 3600):
             self.reddit.update()
