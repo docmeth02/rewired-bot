@@ -62,7 +62,8 @@ class rewiredBotPlugin():
                 parser = urlparse(aurl)
                 if parser.scheme in ['http', 'https']:
                     if parser.path[-4:] in ['jpeg', '.jpg', '.png', '.gif']:
-                        self.parent.librewired.sendChatImage(int(msg[0]), '', {'type': 'url', 'data': aurl})
+                        self.parent.librewired.sendChatImage(int(msg[0]), '', {'type': 'url', 'data': aurl},
+                                                             sendlegacy=0)
                         continue
                 # is this a valid html document with a title tag we can use?
                 try:
