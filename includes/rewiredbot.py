@@ -39,6 +39,7 @@ class rewiredbot():
         self.db.openDB()
         self.storage = simplestorage.simpleStorage()
         self.plugins = []
+        self.pluginshutdowncallbacks = []
         self.initPlugins()
         self.nick = self.config['nick']
         self.librewired.appname = self.config['appname']
@@ -78,6 +79,11 @@ class rewiredbot():
         self.botShutdown()
 
     def botShutdown(self, *args):
+        for aplugin in self.pluginshutdowncallbacks:
+            try:
+                aplugin()
+            except Exception as e:
+                self.logger.error("Error in plugin shutdown handler: %s" % e)
         botfunctions.removePID(self.config)
         self.librewired.keepalive = 0
         self.db.closeDB()
@@ -105,7 +111,7 @@ class rewiredbot():
         return 1
 
     def gotActionChat(self, msg):
-        return 1
+        return self.gotChat(msg)
 
     def gotChat(self, msg):
         chat = msg.msg
