@@ -74,7 +74,8 @@ class rewiredBotPlugin():
                 return "!imgadd giphyid imagename"
             result = findall(r'([\w]{12,14}) ([\w ]+)', str(params))
             if not len(result):
-                url = findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png)) ([\w ]+)', str(params))
+                url = findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|'
+                              r'(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png)) ([\w ]+)', str(params))
             if len(result) == 1:
                 imgid, name = result[0]
             elif len(url):
@@ -113,16 +114,17 @@ class rewiredBotPlugin():
             name = token[0][2:].lower()
             if self.parent.storage.exists('plugin.img', name):
                 gid = self.parent.storage.get('plugin.img', name)
-                if len(findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png))', gid)):
+                if len(findall(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|'
+                               r'(?:%[0-9a-fA-F][0-9a-fA-F]))+(?:.jpg|.jpeg|.gif|.png))', gid)):
                     image = {}
                     image['url'] = gid
                 else:
                     image = getImage(gid=gid)
-                if isinstance(image, dict):
+                if type(image) == dict:
                     if not 'url' in image.keys():
                         return 0
-                self.parent.librewired.sendChatImage(int(msg[0]), '',
-                                                     {'type': 'url', 'data': decode(image['url'])}, sendlegacy=1)
+                    self.parent.librewired.sendChatImage(int(msg[0]), '',
+                                                         {'type': 'url', 'data': decode(image['url'])}, sendlegacy=1)
         return 0
 
 
