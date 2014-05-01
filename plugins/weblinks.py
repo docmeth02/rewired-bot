@@ -49,7 +49,7 @@ class rewiredBotPlugin():
                     from plugins import imdb
             except Exception as e:
                 hasimdb = 0
-            if msg[2][:5].upper() != '!IMDB' and hasimdb:
+            if not '!IMDB' in msg[2].upper() and hasimdb:
                 for aid in imdbids:
                     tvshow = imdb.getTVbyIMDB(aid)
                     if tvshow:
