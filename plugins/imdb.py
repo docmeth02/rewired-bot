@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from urllib2 import urlopen, HTTPError
 from HTMLParser import HTMLParser
-#from difflib import get_close_matches
+from traceback import print_exc
 from xml.dom import minidom
 from sys import exit
 import datetime
@@ -235,7 +235,7 @@ def searchMovies(title, year=None):
     try:
         results = tmdb3.searchMovie(title, year=year, locale=tmdb3.get_locale())
     except Exception as e:
-        print "NOPE: %s" % e
+        print "NOPE: %s - %s" % (e, print_exc())
         return 0
 
     if not len(results):
