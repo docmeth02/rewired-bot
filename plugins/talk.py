@@ -28,7 +28,6 @@ class rewiredBotPlugin():
             return 0
         command = self.parent.parse_command(args[0][2])
         chat = int(args[0][0])
-
         parts = str(params).split(" ")
         if len(parts) < 2:
             return "usage: !talk botid b0dafd24ee35a477"
@@ -49,7 +48,11 @@ class rewiredBotPlugin():
         return 1
 
     def monitorChat(self, chat):
+        # filter ssWired escape char
         msg = chat.msg
+        if unichr(14) == msg[2][0]:
+            msg[2] = msg[2][1:]
+
         if int(msg[1]) == self.parent.librewired.id:
             return 0
         if msg[2][:len(self.parent.librewired.nick)+1].lower() == "%s:" % self.parent.librewired.nick.lower():
