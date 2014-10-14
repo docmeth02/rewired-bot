@@ -10,11 +10,12 @@ from logging import StreamHandler, getLogger, DEBUG, INFO, ERROR, CRITICAL
 
 class rewiredbot():
     def __init__(self, daemonize=0, bundled=0, configfile=0, bundleCallback=0):
-        if not configfile:
-            configfile = 'bot.conf'
-        self.config = botfunctions.loadConfig(configfile)
+        self.configfile = configfile
+        if not self.configfile:
+            self.configfile = 'bot.conf'
+        self.config = botfunctions.loadConfig(self.configfile)
         if not self.config:
-            print "Failed to load config File!"
+            print "Failed to load config from file: %s!" % self.configfile
             raise SystemExit
         self.config['appversion'] = botfunctions.gitVersion('includes')
         self.config['appname'] = "re:wired Bot"
@@ -251,3 +252,9 @@ class rewiredbot():
 
     def clientBanned(self, params):
         self.clientKicked(params, True)
+
+    def updateConfig(self):
+        """ updates the local configfile """
+        print "moo"
+        return botfunctions.saveConfig(self.config, self.configfile)
+

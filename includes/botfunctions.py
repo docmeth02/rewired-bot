@@ -73,6 +73,8 @@ def saveConfig(newconfig, confFile):
     config.add_section("re:wired Bot")
     listitems = ['adminuser', 'opuser', 'guestuser']
     for akey, asetting in newconfig.items():
+        if akey in ['appversion', 'appname']:
+            continue
         if akey in listitems and type(asetting) == list:
             asetting = ', '.join(asetting)
         config.set("re:wired Bot", akey, asetting)

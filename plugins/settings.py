@@ -33,7 +33,8 @@ class rewiredBotPlugin():
             param = 0
 
         if cmd == "SAVE":
-            saveConfig(self.parent.config, 'bot.conf')
+            if self.parent.updateConfig():
+                self.parent.librewired.sendChat(chatid, "updated its configuration file.", 1)
             return 0
 
         if cmd == "NICK":
