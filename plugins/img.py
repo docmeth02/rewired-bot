@@ -3,6 +3,8 @@ import urllib2
 from urllib import urlencode
 from json import loads
 from re import findall
+from itertools import groupby
+from operator import itemgetter
 
 
 class rewiredBotPlugin():
@@ -101,8 +103,12 @@ class rewiredBotPlugin():
         elif command.lower() == 'imglist':
             images = self.parent.storage.get('plugin.img', None)
             if len(images):
-                msg = '::' + ', ::'.join(images.keys())
-                self.parent.librewired.sendPrivateMsg(int(args[0][1]), '!img known images:\n%s' % msg)
+                msg = ''
+                for letter, names in groupby(sorted(images.keys()), key=itemgetter(0)):
+                    line = '::' + ', ::'.join(names)
+                    if line != '::':
+                        msg += ''.join([line, '\n______________________________________\n'])
+                self.parent.librewired.sendPrivateMsg(int(args[0][1]), '!img List of images:\n%s' % msg)
         return 0
 
     def monitorChat(self, chat):
