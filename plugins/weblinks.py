@@ -78,11 +78,11 @@ class rewiredBotPlugin():
                 except:
                     continue
                 if response:
-                    data = unicode(response.read(), errors='ignore')
+                    data = unicode(response.read(1000000), errors='ignore')  # read 1m at the most
                     data = data.encode("UTF-8")
                     if len(data):
                         host = urlparse(aurl)
-                        if 'youtube.com' in host.netloc.lower() or 'youtu.be' in host.netloc.lower():
+                        if host.netloc.lower() in ['youtube.com', 'youtu.be']:
                             title = getSiteTitle(data)
                             if title:
                                 title = title[0:title.find("- YouTube") - 1]
